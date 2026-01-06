@@ -43,6 +43,69 @@ describe('instruction-loader', () => {
     });
   });
 
+  describe('locale-aware templates and overlays', () => {
+    let tempDir: string;
+    let originalEnv: NodeJS.ProcessEnv;
+
+    beforeEach(() => {
+      tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'openspec-test-'));
+      originalEnv = { ...process.env };
+      process.env.XDG_DATA_HOME = tempDir;
+
+      const schemaDir = path.join(tempDir, 'openspec', 'schemas', 'localized-test');
+      fs.mkdirSync(path.join(schemaDir, 'templates', 'zh-Hans'), { recursive: true });
+      fs.mkdirSync(path.join(schemaDir, 'locales'), { recursive: true });
+
+      const schema = [
+        'name: localized-test',
+        'version: 1',
+        'description: Base schema description',
+        'artifacts:',
+        '  - id: proposal',
+        '    generates: proposal.md',
+        '    description: Base proposal description',
+        '    template: proposal.md',
+        '    instruction: Base instruction',
+        '    requires: []',
+      ].join('\n');
+
+      fs.writeFileSync(path.join(schemaDir, 'schema.yaml'), schema, 'utf-8');
+      fs.writeFileSync(path.join(schemaDir, 'templates', 'proposal.md'), 'Base template', 'utf-8');
+      fs.writeFileSync(path.join(schemaDir, 'templates', 'zh-Hans', 'proposal.md'), 'Localized template', 'utf-8');
+
+      const overlay = [
+        'schema:',
+        '  description: Localized schema description',
+        'artifacts:',
+        '  proposal:',
+        '    description: Localized proposal description',
+        '    instruction: Localized instruction',
+      ].join('\n');
+      fs.writeFileSync(path.join(schemaDir, 'locales', 'zh-Hans.yaml'), overlay, 'utf-8');
+    });
+
+    afterEach(() => {
+      process.env = originalEnv;
+      fs.rmSync(tempDir, { recursive: true, force: true });
+    });
+
+    it('loads localized schema templates with fallback', () => {
+      const localized = loadTemplate('localized-test', 'proposal.md', 'zh-Hans');
+      expect(localized).toBe('Localized template');
+
+      const fallback = loadTemplate('localized-test', 'proposal.md', 'fr');
+      expect(fallback).toBe('Base template');
+    });
+
+    it('applies schema locale overlays with fallback chain', () => {
+      const context = loadChangeContext(tempDir, 'my-change', 'localized-test', 'zh-Hans-CN');
+      const instructions = generateInstructions(context, 'proposal');
+
+      expect(instructions.description).toBe('Localized proposal description');
+      expect(instructions.instruction).toBe('Localized instruction');
+    });
+  });
+
   describe('loadChangeContext', () => {
     let tempDir: string;
 
