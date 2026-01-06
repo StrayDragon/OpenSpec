@@ -253,6 +253,17 @@ describe('config-schema', () => {
       expect(result.success).toBe(true);
     });
 
+    it('should accept valid locale tag', () => {
+      const result = validateConfig({ locale: 'zh-Hans' });
+      expect(result.success).toBe(true);
+    });
+
+    it('should reject invalid locale tag', () => {
+      const result = validateConfig({ locale: 'not_a_locale' });
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('locale');
+    });
+
     it('should reject non-boolean values in featureFlags', () => {
       const result = validateConfig({ featureFlags: { test: 'string' } });
       expect(result.success).toBe(false);
@@ -330,11 +341,20 @@ describe('config-schema', () => {
       const result = GlobalConfigSchema.parse({});
       expect(result.featureFlags).toEqual({});
     });
+
+    it('should provide default locale', () => {
+      const result = GlobalConfigSchema.parse({});
+      expect(result.locale).toBe('en');
+    });
   });
 
   describe('DEFAULT_CONFIG', () => {
     it('should have empty featureFlags', () => {
       expect(DEFAULT_CONFIG.featureFlags).toEqual({});
+    });
+
+    it('should set default locale to en', () => {
+      expect(DEFAULT_CONFIG.locale).toBe('en');
     });
   });
 });

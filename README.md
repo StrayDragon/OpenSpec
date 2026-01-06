@@ -107,6 +107,34 @@ If you want the expanded workflow (`/opsx:new`, `/opsx:continue`, `/opsx:ff`, `/
 >
 > Also works with pnpm, yarn, bun, and nix. [See installation options](docs/installation.md).
 
+### Locale Configuration
+
+OpenSpec defaults to English for injected instructions and templates. To use another language, set a BCP-47 locale tag in global config:
+
+```bash
+openspec config set locale zh-Hans
+```
+
+Missing localized templates fall back to English.
+
+Use locale validation when preparing translations:
+
+```bash
+openspec locales validate --locale zh-Hans
+openspec locales validate --all --json
+```
+
+### Optional: Populate Project Context
+
+After `openspec init` completes, you'll receive a suggested prompt to help populate your project context:
+
+```text
+Populate your project context:
+"Please read openspec/project.md and help me fill it out with details about my project, tech stack, and conventions"
+```
+
+Use `openspec/project.md` to define project-level conventions, standards, architectural patterns, and other guidelines that should be followed across all changes.
+
 ## Docs
 
 → **[Getting Started](docs/getting-started.md)**: first steps<br>

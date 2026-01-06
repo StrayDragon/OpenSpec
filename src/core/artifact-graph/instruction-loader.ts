@@ -1,11 +1,13 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
+import { parse as parseYaml } from 'yaml';
 import { getSchemaDir, resolveSchema } from './resolver.js';
 import { ArtifactGraph } from './graph.js';
 import { detectCompleted } from './state.js';
 import { resolveSchemaForChange } from '../../utils/change-metadata.js';
+import { getConfiguredLocale, getLocaleFallbackChain, resolveLocale } from '../locale.js';
 import { readProjectConfig, validateConfigRules } from '../project-config.js';
-import type { Artifact, CompletedSet } from './types.js';
+import type { Artifact, CompletedSet, SchemaYaml } from './types.js';
 
 // Session-level cache for validation warnings (avoid repeating same warnings)
 const shownWarnings = new Set<string>();
@@ -33,6 +35,8 @@ export interface ChangeContext {
   completed: CompletedSet;
   /** Schema name being used */
   schemaName: string;
+  /** Resolved locale */
+  locale: string;
   /** Change name */
   changeName: string;
   /** Path to the change directory */
@@ -121,13 +125,15 @@ export interface ChangeStatus {
  * @param schemaName - Schema name (e.g., "spec-driven")
  * @param templatePath - Relative path within the templates directory (e.g., "proposal.md")
  * @param projectRoot - Optional project root for project-local schema resolution
+ * @param locale - Optional locale override for template resolution
  * @returns The template content
  * @throws TemplateLoadError if the template cannot be loaded
  */
 export function loadTemplate(
   schemaName: string,
   templatePath: string,
-  projectRoot?: string
+  projectRoot?: string,
+  locale?: string
 ): string {
   const schemaDir = getSchemaDir(schemaName, projectRoot);
   if (!schemaDir) {
@@ -137,7 +143,26 @@ export function loadTemplate(
     );
   }
 
-  const fullPath = path.join(schemaDir, 'templates', templatePath);
+  const templatesDir = path.join(schemaDir, 'templates');
+  const resolvedLocale = locale ?? getConfiguredLocale();
+  const localeFallbacks = getLocaleFallbackChain(resolvedLocale);
+
+  for (const candidate of localeFallbacks) {
+    const localizedPath = path.join(templatesDir, candidate, templatePath);
+    if (fs.existsSync(localizedPath)) {
+      try {
+        return fs.readFileSync(localizedPath, 'utf-8');
+      } catch (err) {
+        const ioError = err instanceof Error ? err : new Error(String(err));
+        throw new TemplateLoadError(
+          `Failed to read template: ${ioError.message}`,
+          localizedPath
+        );
+      }
+    }
+  }
+
+  const fullPath = path.join(templatesDir, templatePath);
 
   if (!fs.existsSync(fullPath)) {
     throw new TemplateLoadError(
@@ -157,6 +182,79 @@ export function loadTemplate(
   }
 }
 
+interface SchemaLocaleOverlay {
+  schema?: {
+    description?: string;
+  };
+  artifacts?: Record<string, { description?: string; instruction?: string }>;
+}
+
+function loadSchemaLocaleOverlay(
+  schemaDir: string,
+  locale: string
+): SchemaLocaleOverlay | null {
+  const localeFallbacks = getLocaleFallbackChain(locale);
+
+  for (const candidate of localeFallbacks) {
+    const overlayPath = path.join(schemaDir, 'locales', `${candidate}.yaml`);
+    if (!fs.existsSync(overlayPath)) {
+      continue;
+    }
+
+    const content = fs.readFileSync(overlayPath, 'utf-8');
+    const parsed = parseYaml(content);
+    if (!parsed || typeof parsed !== 'object') {
+      return null;
+    }
+    return parsed as SchemaLocaleOverlay;
+  }
+
+  return null;
+}
+
+function applySchemaLocaleOverlay(
+  schema: SchemaYaml,
+  overlay: SchemaLocaleOverlay
+): SchemaYaml {
+  const artifacts = schema.artifacts.map((artifact) => {
+    const override = overlay.artifacts?.[artifact.id];
+    if (!override) {
+      return artifact;
+    }
+
+    return {
+      ...artifact,
+      description: override.description ?? artifact.description,
+      instruction: override.instruction ?? artifact.instruction,
+    };
+  });
+
+  return {
+    ...schema,
+    description: overlay.schema?.description ?? schema.description,
+    artifacts,
+  };
+}
+
+function resolveSchemaWithLocale(
+  schemaName: string,
+  locale: string,
+  projectRoot?: string
+): SchemaYaml {
+  const schema = resolveSchema(schemaName, projectRoot);
+  const schemaDir = getSchemaDir(schemaName, projectRoot);
+  if (!schemaDir) {
+    return schema;
+  }
+
+  const overlay = loadSchemaLocaleOverlay(schemaDir, locale);
+  if (!overlay) {
+    return schema;
+  }
+
+  return applySchemaLocaleOverlay(schema, overlay);
+}
+
 /**
  * Loads change context combining graph and completion state.
  *
@@ -173,14 +271,16 @@ export function loadTemplate(
 export function loadChangeContext(
   projectRoot: string,
   changeName: string,
-  schemaName?: string
+  schemaName?: string,
+  locale?: string
 ): ChangeContext {
   const changeDir = path.join(projectRoot, 'openspec', 'changes', changeName);
+  const resolvedLocale = locale ? resolveLocale(locale) : getConfiguredLocale();
 
   // Resolve schema: explicit > metadata > default
   const resolvedSchemaName = resolveSchemaForChange(changeDir, schemaName);
 
-  const schema = resolveSchema(resolvedSchemaName, projectRoot);
+  const schema = resolveSchemaWithLocale(resolvedSchemaName, resolvedLocale, projectRoot);
   const graph = ArtifactGraph.fromSchema(schema);
   const completed = detectCompleted(graph, changeDir);
 
@@ -188,6 +288,7 @@ export function loadChangeContext(
     graph,
     completed,
     schemaName: resolvedSchemaName,
+    locale: resolvedLocale,
     changeName,
     changeDir,
     projectRoot,
@@ -218,7 +319,12 @@ export function generateInstructions(
     throw new Error(`Artifact '${artifactId}' not found in schema '${context.schemaName}'`);
   }
 
-  const templateContent = loadTemplate(context.schemaName, artifact.template, context.projectRoot);
+  const templateContent = loadTemplate(
+    context.schemaName,
+    artifact.template,
+    context.projectRoot,
+    context.locale
+  );
   const dependencies = getDependencyInfo(artifact, context.graph, context.completed);
   const unlocks = getUnlockedArtifacts(context.graph, artifactId);
 

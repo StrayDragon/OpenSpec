@@ -187,6 +187,16 @@ describe('config key validation', () => {
     const { validateConfigKeyPath } = await import('../../src/core/config-schema.js');
     expect(validateConfigKeyPath('workflows').valid).toBe(true);
   });
+
+  it('allows locale key', async () => {
+    const { validateConfigKeyPath } = await import('../../src/core/config-schema.js');
+    expect(validateConfigKeyPath('locale').valid).toBe(true);
+  });
+
+  it('rejects nested locale keys', async () => {
+    const { validateConfigKeyPath } = await import('../../src/core/config-schema.js');
+    expect(validateConfigKeyPath('locale.extra').valid).toBe(false);
+  });
 });
 
 describe('config profile command', () => {
@@ -266,7 +276,9 @@ describe('config profile command', () => {
 
     expect(validateConfig({ featureFlags: {}, profile: 'core', delivery: 'both' }).success).toBe(true);
     expect(validateConfig({ featureFlags: {}, profile: 'custom', delivery: 'skills' }).success).toBe(true);
-    expect(validateConfig({ featureFlags: {}, profile: 'custom', delivery: 'commands', workflows: ['explore'] }).success).toBe(true);
+    expect(
+      validateConfig({ featureFlags: {}, profile: 'custom', delivery: 'commands', workflows: ['explore'] }).success
+    ).toBe(true);
   });
 
   it('config schema should reject invalid profile values', async () => {

@@ -101,7 +101,7 @@ describe('global-config', () => {
 
       const config = getGlobalConfig();
 
-      expect(config).toEqual({ featureFlags: {}, profile: 'core', delivery: 'both' });
+      expect(config).toEqual({ featureFlags: {}, profile: 'core', delivery: 'both', locale: 'en' });
     });
 
     it('should not create directory when reading non-existent config', () => {
@@ -138,7 +138,7 @@ describe('global-config', () => {
 
       const config = getGlobalConfig();
 
-      expect(config).toEqual({ featureFlags: {}, profile: 'core', delivery: 'both' });
+      expect(config).toEqual({ featureFlags: {}, profile: 'core', delivery: 'both', locale: 'en' });
     });
 
     it('should log warning for invalid JSON', () => {
@@ -174,6 +174,22 @@ describe('global-config', () => {
       expect((config as any).futureOption).toBe(123);
     });
 
+    it('should load locale from config file', () => {
+      process.env.XDG_CONFIG_HOME = tempDir;
+      const configDir = path.join(tempDir, 'openspec');
+      const configPath = path.join(configDir, 'config.json');
+
+      fs.mkdirSync(configDir, { recursive: true });
+      fs.writeFileSync(configPath, JSON.stringify({
+        featureFlags: { x: true },
+        locale: 'zh-Hans',
+      }));
+
+      const config = getGlobalConfig();
+
+      expect(config.locale).toBe('zh-Hans');
+    });
+
     it('should merge loaded config with defaults', () => {
       process.env.XDG_CONFIG_HOME = tempDir;
       const configDir = path.join(tempDir, 'openspec');
@@ -189,6 +205,7 @@ describe('global-config', () => {
 
       // Should have the custom flag
       expect(config.featureFlags?.customFlag).toBe(true);
+      expect(config.locale).toBe('en');
     });
 
     describe('schema evolution', () => {
@@ -320,13 +337,15 @@ describe('global-config', () => {
     it('should round-trip config correctly', () => {
       process.env.XDG_CONFIG_HOME = tempDir;
       const originalConfig = {
-        featureFlags: { flag1: true, flag2: false }
+        featureFlags: { flag1: true, flag2: false },
+        locale: 'en',
       };
 
       saveGlobalConfig(originalConfig);
       const loadedConfig = getGlobalConfig();
 
       expect(loadedConfig.featureFlags).toEqual(originalConfig.featureFlags);
+      expect(loadedConfig.locale).toBe(originalConfig.locale);
     });
   });
 });
