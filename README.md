@@ -167,6 +167,23 @@ openspec init
 - If your coding assistant doesn't surface the new slash commands right away, restart it. Slash commands are loaded at startup,
   so a fresh launch ensures they appear
 
+### Locale Configuration
+
+OpenSpec defaults to English for injected instructions and templates. To use another language, set a BCP-47 locale tag in global config:
+
+```bash
+openspec config set locale zh-Hans
+```
+
+Missing localized templates fall back to English.
+
+Use locale validation when preparing translations:
+
+```bash
+openspec locales validate --locale zh-Hans
+openspec locales validate --all --json
+```
+
 ### Optional: Populate Project Context
 
 After `openspec init` completes, you'll receive a suggested prompt to help populate your project context:

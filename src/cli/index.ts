@@ -14,6 +14,7 @@ import { ValidateCommand } from '../commands/validate.js';
 import { ShowCommand } from '../commands/show.js';
 import { CompletionCommand } from '../commands/completion.js';
 import { registerConfigCommand } from '../commands/config.js';
+import { registerLocalesCommand } from '../commands/locales.js';
 import { registerArtifactWorkflowCommands } from '../commands/artifact-workflow.js';
 
 const program = new Command();
@@ -206,6 +207,7 @@ program
 
 registerSpecCommand(program);
 registerConfigCommand(program);
+registerLocalesCommand(program);
 
 // Top-level validate command
 program

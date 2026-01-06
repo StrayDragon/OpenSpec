@@ -3,7 +3,7 @@ import { FileSystemUtils } from '../utils/file-system.js';
 import { OPENSPEC_DIR_NAME } from './config.js';
 import { ToolRegistry } from './configurators/registry.js';
 import { SlashCommandRegistry } from './configurators/slash/registry.js';
-import { agentsTemplate } from './templates/agents-template.js';
+import { getAgentsTemplate } from './templates/agents-template.js';
 
 export class UpdateCommand {
   async execute(projectPath: string): Promise<void> {
@@ -19,7 +19,7 @@ export class UpdateCommand {
     // 2. Update AGENTS.md (full replacement)
     const agentsPath = path.join(openspecPath, 'AGENTS.md');
 
-    await FileSystemUtils.writeFile(agentsPath, agentsTemplate);
+    await FileSystemUtils.writeFile(agentsPath, getAgentsTemplate());
 
     // 3. Update existing AI tool configuration files only
     const configurators = ToolRegistry.getAll();

@@ -172,4 +172,14 @@ describe('config key validation', () => {
     const { validateConfigKeyPath } = await import('../../src/core/config-schema.js');
     expect(validateConfigKeyPath('featureFlags.someFlag.extra').valid).toBe(false);
   });
+
+  it('allows locale key', async () => {
+    const { validateConfigKeyPath } = await import('../../src/core/config-schema.js');
+    expect(validateConfigKeyPath('locale').valid).toBe(true);
+  });
+
+  it('rejects nested locale keys', async () => {
+    const { validateConfigKeyPath } = await import('../../src/core/config-schema.js');
+    expect(validateConfigKeyPath('locale.extra').valid).toBe(false);
+  });
 });

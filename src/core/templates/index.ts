@@ -1,9 +1,9 @@
-import { agentsTemplate } from './agents-template.js';
+import { getAgentsTemplate } from './agents-template.js';
 import { projectTemplate, ProjectContext } from './project-template.js';
-import { claudeTemplate } from './claude-template.js';
-import { clineTemplate } from './cline-template.js';
-import { costrictTemplate } from './costrict-template.js';
-import { agentsRootStubTemplate } from './agents-root-stub.js';
+import { getClaudeTemplate } from './claude-template.js';
+import { getClineTemplate } from './cline-template.js';
+import { getCostrictTemplate } from './costrict-template.js';
+import { getAgentsRootStubTemplate } from './agents-root-stub.js';
 import { getSlashCommandBody, SlashCommandId } from './slash-command-templates.js';
 
 export interface Template {
@@ -12,37 +12,37 @@ export interface Template {
 }
 
 export class TemplateManager {
-  static getTemplates(context: ProjectContext = {}): Template[] {
+  static getTemplates(context: ProjectContext = {}, locale?: string): Template[] {
     return [
       {
         path: 'AGENTS.md',
-        content: agentsTemplate
+        content: getAgentsTemplate(locale)
       },
       {
         path: 'project.md',
-        content: projectTemplate(context)
+        content: projectTemplate(context, locale)
       }
     ];
   }
 
-  static getClaudeTemplate(): string {
-    return claudeTemplate;
+  static getClaudeTemplate(locale?: string): string {
+    return getClaudeTemplate(locale);
   }
 
-  static getClineTemplate(): string {
-    return clineTemplate;
+  static getClineTemplate(locale?: string): string {
+    return getClineTemplate(locale);
   }
 
-  static getCostrictTemplate(): string {
-    return costrictTemplate;
+  static getCostrictTemplate(locale?: string): string {
+    return getCostrictTemplate(locale);
   }
 
-  static getAgentsStandardTemplate(): string {
-    return agentsRootStubTemplate;
+  static getAgentsStandardTemplate(locale?: string): string {
+    return getAgentsRootStubTemplate(locale);
   }
 
-  static getSlashCommandBody(id: SlashCommandId): string {
-    return getSlashCommandBody(id);
+  static getSlashCommandBody(id: SlashCommandId, locale?: string): string {
+    return getSlashCommandBody(id, locale);
   }
 }
 
