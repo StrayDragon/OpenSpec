@@ -1,0 +1,135 @@
+name: spec-driven
+version: 1
+description: 默认 OpenSpec 工作流程 - proposal → specs → design → tasks
+artifacts:
+  - id: proposal
+    generates: proposal.md
+    description: 概述变更的初始提案文档
+    template: proposal.md
+    instruction: |
+      创建确立为什么需要此变更的提案文档。
+
+      章节：
+      - **Why**：关于问题或机会的 1-2 句话。这解决了什么问题？为什么现在？
+      - **What Changes**：变更列表。具体说明新功能、修改或删除。用 **BREAKING** 标记破坏性变更。
+      - **Capabilities**：确定将创建或修改哪些规范：
+        - **New Capabilities**：列出正在引入的功能。每个都成为新的 `specs/<name>/spec.md`。使用 kebab-case 名称（例如，`user-auth`、`data-export`）。
+        - **Modified Capabilities**：列出其 REQUIREMENTS 正在更改的现有功能。仅包含规范级别的行为更改（不仅仅是实施细节）。每个都需要增量规范文件。检查 `openspec/specs/` 的现有规范名称。如果没有要求更改，则留空。
+      - **Impact**：受影响的代码、API、依赖项或系统。
+
+      重要：Capabilities 部分至关重要。它在提案和规范阶段之间创建契约。在填写之前研究现有规范。此处列出的每个功能都需要相应的规范文件。
+
+      保持简洁（1-2 页）。专注于"为什么"而不是"如何" - 实施细节属于 design.md。
+
+      这是基础 - 规范、设计和任务都基于此构建。
+    requires: []
+
+  - id: specs
+    generates: "specs/**/*.md"
+    description: 变更的详细规范
+    template: spec.md
+    instruction: |
+      创建定义系统应该做什么的规范文件。
+
+      在 specs/<name>/spec.md 中为每个功能/功能区域创建一个规范文件。
+
+      增量操作（使用 ## 标题）：
+      - **ADDED Requirements**：新功能
+      - **MODIFIED Requirements**：更改的行为 - 必须包含完整的更新内容
+      - **REMOVED Requirements**：已弃用的功能 - 必须包含 **Reason** 和 **Migration**
+      - **RENAMED Requirements**：仅名称变更 - 使用 FROM:/TO: 格式
+
+      格式化要求：
+      - 每个要求：`### Requirement: <name>` 后跟描述
+      - 对规范性要求使用 SHALL/MUST（避免 should/may）
+      - 每个场景：`#### Scenario: <name>` 使用 WHEN/THEN 格式
+      - **关键**：场景必须准确使用 4 个井号（`####`）。使用 3 个井号或项目符号将静默失败。
+      - 每个要求必须至少有一个场景。
+
+      MODIFIED 要求工作流程：
+      1. 在 openspec/specs/<capability>/spec.md 中定位现有要求
+      2. 复制整个要求块（从 `### Requirement:` 到所有场景）
+      3. 粘贴到 `## MODIFIED Requirements` 下并编辑以反映新行为
+      4. 确保标题文本完全匹配（不区分空格）
+
+      常见陷阱：使用 MODIFIED 与部分内容会在归档时丢失详细信息。如果在不更改现有行为的情况下添加新关注点，请改用 ADDED。
+
+      示例：
+      ```
+      ## ADDED Requirements
+
+      ### Requirement: 用户可以导出数据
+      系统必须允许用户以 CSV 格式导出其数据。
+
+      #### Scenario: 成功导出
+      - **WHEN** 用户点击"导出"按钮
+      - **THEN** 系统下载包含所有用户数据的 CSV 文件
+
+      ## REMOVED Requirements
+
+      ### Requirement: 旧导出
+      **原因**：已被新导出系统替换
+      **迁移**：使用位于 /api/v2/export 的新导出端点
+      ```
+
+      规范应该是可测试的 - 每个场景都是潜在的测试用例。
+    requires:
+      - proposal
+
+  - id: design
+    generates: design.md
+    description: 包含实施细节的技术设计文档
+    template: design.md
+    instruction: |
+      创建解释如何实施变更的设计文档。
+
+      何时包含 design.md（仅在适用时创建）：
+      - 跨领域变更（多个服务/模块）或新的架构模式
+      - 新的外部依赖项或重要的数据模型变更
+      - 安全、性能或迁移复杂性
+      - 在编码之前受益于技术决策的歧义
+
+      章节：
+      - **Context**：背景、当前状态、约束、利益相关者
+      - **Goals / Non-Goals**：此设计实现的内容和明确排除的内容
+      - **Decisions**：关键的技术选择及其理由（为什么选择 X 而不是 Y？）。包括为每个决策考虑的替代方案。
+      - **Risks / Trade-offs**：已知的限制、可能出现的问题。格式：[风险] → 缓解措施
+      - **Migration Plan**：部署步骤、回滚策略（如适用）
+      - **Open Questions**：未解决的决定或需要解决的未知数
+
+      专注于架构和方法，而不是逐行实施。参考提案以获取动机，参考规范以获取要求。
+
+      好的设计文档解释技术决策背后的"为什么"。
+    requires:
+      - proposal
+
+  - id: tasks
+    generates: tasks.md
+    description: 从规范和设计派生的实施任务
+    template: tasks.md
+    instruction: |
+      创建分解实施工作的任务列表。
+
+      指南：
+      - 在 ## 编号标题下对相关任务进行分组
+      - 每个任务是一个复选框：- [ ] X.Y 任务描述
+      - 任务应该足够小，可以在一个会话中完成
+      - 按依赖关系对任务进行排序（必须先做什么？）
+
+      示例：
+      ```
+      ## 1. 设置
+
+      - [ ] 1.1 创建新模块结构
+      - [ ] 1.2 将依赖项添加到 package.json
+
+      ## 2. 核心实施
+
+      - [ ] 2.1 实施数据导出功能
+      - [ ] 2.2 添加 CSV 格式化工具
+      ```
+
+      参考规范了解需要构建的内容，参考设计了解如何构建。每个任务都应该是可验证的 - 您知道何时完成。
+    requires:
+      - specs
+      - design
