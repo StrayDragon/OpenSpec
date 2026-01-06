@@ -17,12 +17,14 @@ export interface GlobalConfig {
   profile?: Profile;
   delivery?: Delivery;
   workflows?: string[];
+  locale?: string;
 }
 
 const DEFAULT_CONFIG: GlobalConfig = {
   featureFlags: {},
   profile: 'core',
   delivery: 'both',
+  locale: 'en',
 };
 
 /**
@@ -117,7 +119,8 @@ export function getGlobalConfig(): GlobalConfig {
       featureFlags: {
         ...DEFAULT_CONFIG.featureFlags,
         ...(parsed.featureFlags || {})
-      }
+      },
+      locale: typeof parsed.locale === 'string' ? parsed.locale : DEFAULT_CONFIG.locale,
     };
 
     // Schema evolution: apply defaults for new fields if not present in loaded config

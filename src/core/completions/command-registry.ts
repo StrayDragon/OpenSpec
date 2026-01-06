@@ -460,4 +460,27 @@ export const COMMAND_REGISTRY: CommandDefinition[] = [
       },
     ],
   },
+  {
+    name: 'locales',
+    description: 'Validate locale templates and overlays',
+    flags: [],
+    subcommands: [
+      {
+        name: 'validate',
+        description: 'Validate locale tags and template coverage',
+        flags: [
+          {
+            name: 'locale',
+            description: 'Validate a specific locale tag',
+            takesValue: true,
+          },
+          {
+            name: 'all',
+            description: 'Validate all locales under templates/',
+          },
+          COMMON_FLAGS.json,
+        ],
+      },
+    ],
+  },
 ];
