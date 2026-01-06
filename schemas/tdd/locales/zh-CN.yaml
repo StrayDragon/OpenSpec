@@ -1,0 +1,190 @@
+schema:
+  description: 测试驱动开发流程 - 测试 → 实现 → 文档
+artifacts:
+  spec:
+    description: 定义需求的功能规格
+    instruction: |
+      创建定义“要构建什么”的功能规格。
+
+      章节:
+      - **功能**: 功能名称与目的/用户价值的高层描述
+      - **需求**: 具体需求列表。规范性语言使用 SHALL/MUST。
+      - **验收标准**: 使用 WHEN/THEN 格式的可测试标准
+
+      格式要求:
+      - 每条需求应具体且可测试
+      - 验收标准使用 `#### Scenario: <name>`，并遵循 WHEN/THEN 格式
+      - 明确边界情况与错误场景
+      - 每条需求必须至少包含一个场景
+
+      示例:
+      ```
+      ## 功能: 用户认证
+
+      用户可以安全地登录应用。
+
+      ## 需求
+
+      ### Requirement: 密码校验
+      系统 SHALL 校验密码满足最低安全要求。
+
+      #### Scenario: 有效密码被接受
+      - **WHEN** 密码包含 8+ 字符、大写、小写和数字
+      - **THEN** 密码被接受
+
+      #### Scenario: 弱密码被拒绝
+      - **WHEN** 密码少于 8 个字符
+      - **THEN** 系统显示 "密码过短" 错误
+      ```
+
+      该规格驱动测试创建——每个场景都是测试用例。
+
+  tests:
+    description: 实现前编写的测试文件
+    instruction: |
+      在实现之前编写测试（TDD 红阶段）。
+
+      文件命名:
+      - 测试文件命名为 `tests/<feature>.test.ts`
+      - 每个功能/能力一个测试文件
+      - 使用与规格一致的描述性名称
+
+      测试结构:
+      - 使用与规格场景对应的 Given/When/Then 格式
+      - 使用 `describe()` 分组相关测试
+      - 规格中的每个场景至少对应一个 `it()` 测试
+
+      覆盖要求:
+      - 覆盖规格中的每条需求
+      - 包含成功路径（happy path）
+      - 包含边界情况
+      - 包含错误场景（无效输入、失败）
+      - 测试应先失败（尚无实现）
+
+      示例:
+      ```typescript
+      describe('密码校验', () => {
+        it('接受满足所有要求的有效密码', () => {
+          // GIVEN 一个满足所有要求的密码
+          const password = 'SecurePass1';
+          // WHEN 进行校验
+          const result = validatePassword(password);
+          // THEN 应该被接受
+          expect(result.valid).toBe(true);
+        });
+
+        it('拒绝少于 8 个字符的密码', () => {
+          // GIVEN 一个较短密码
+          const password = 'Short1';
+          // WHEN 进行校验
+          const result = validatePassword(password);
+          // THEN 应该被拒绝并返回消息
+          expect(result.valid).toBe(false);
+          expect(result.error).toBe('密码过短');
+        });
+      });
+      ```
+
+      严格遵循规格需求——测试用于验证规格。
+
+  implementation:
+    description: 用于通过测试的实现代码
+    instruction: |
+      实现功能以通过测试（TDD 绿阶段）。
+
+      TDD 工作流:
+      1. 运行测试 - 确认失败（红）
+      2. 编写最小代码以通过一个测试
+      3. 运行测试 - 确认通过（绿）
+      4. 必要时重构，但保持测试为绿
+      5. 重复处理下一个失败的测试
+
+      实现指引:
+      - 编写通过每个测试所需的最少代码
+      - 频繁运行测试以验证进度
+      - 保持函数小而聚焦
+      - 使用清晰且描述性的命名
+
+      代码组织:
+      - 在 `src/<feature>.ts` 中创建源文件
+      - 清晰导出公共 API
+      - 实现细节保持私有
+      - 为公共函数添加 JSDoc 注释
+
+      示例结构:
+      ```typescript
+      /**
+       * 校验密码是否满足安全要求。
+       * @param password - 待校验的密码
+       * @returns 校验结果，包含 valid 标记和可选的错误信息
+       */
+      export function validatePassword(password: string): ValidationResult {
+        if (password.length < 8) {
+          return { valid: false, error: '密码过短' };
+        }
+        // ... 更多检查
+        return { valid: true };
+      }
+      ```
+
+      不要过度设计——只实现测试所需的内容。
+
+  docs:
+    description: 已实现功能的文档
+    instruction: |
+      编写已实现功能的文档。
+
+      章节:
+      - **概览**: 功能是什么、为何存在（1-2 段）
+      - **快速开始**: 立即上手的指南
+      - **示例**: 常见用例的代码示例
+      - **参考**: 详细 API 文档、配置选项
+
+      指引:
+      - 面向用户编写，而不是面向开发者
+      - 从最常见的用例开始
+      - 提供可复制粘贴的代码示例
+      - 记录所有配置选项及其默认值
+      - 标注限制、边界情况或注意事项
+      - 链接相关功能或规格
+
+      示例结构:
+      ```markdown
+      ## 概览
+
+      密码校验确保用户密码满足安全要求，
+      用于账户创建或密码变更前的验证。
+
+      ## 快速开始
+
+      导入并使用校验函数：
+
+      ```typescript
+      import { validatePassword } from './password';
+
+      const result = validatePassword('MySecurePass1');
+      if (!result.valid) {
+        console.error(result.error);
+      }
+      ```
+
+      ## 示例
+
+      ### 基础校验
+      ...
+
+      ### 自定义错误处理
+      ...
+
+      ## 参考
+
+      ### validatePassword(password)
+
+      | 参数 | 类型 | 说明 |
+      |-----------|------|-------------|
+      | password | string | 待校验的密码 |
+
+      **返回值**: `{ valid: boolean, error?: string }`
+      ```
+
+      参考规格了解需求，参考实现了解细节。
