@@ -10,10 +10,12 @@ export const GLOBAL_DATA_DIR_NAME = 'openspec';
 // TypeScript interfaces
 export interface GlobalConfig {
   featureFlags?: Record<string, boolean>;
+  locale?: string;
 }
 
 const DEFAULT_CONFIG: GlobalConfig = {
-  featureFlags: {}
+  featureFlags: {},
+  locale: 'en',
 };
 
 /**
@@ -108,7 +110,8 @@ export function getGlobalConfig(): GlobalConfig {
       featureFlags: {
         ...DEFAULT_CONFIG.featureFlags,
         ...(parsed.featureFlags || {})
-      }
+      },
+      locale: typeof parsed.locale === 'string' ? parsed.locale : DEFAULT_CONFIG.locale,
     };
   } catch (error) {
     // Log warning for parse errors, but not for missing files

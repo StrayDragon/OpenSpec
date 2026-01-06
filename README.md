@@ -108,6 +108,23 @@ Now tell your AI: `/opsx:new <what-you-want-to-build>`
 >
 > Also works with pnpm, yarn, bun, and nix. [See installation options](docs/installation.md).
 
+### Locale Configuration
+
+OpenSpec defaults to English for injected instructions and templates. To use another language, set a BCP-47 locale tag in global config:
+
+```bash
+openspec config set locale zh-Hans
+```
+
+Missing localized templates fall back to English.
+
+Use locale validation when preparing translations:
+
+```bash
+openspec locales validate --locale zh-Hans
+openspec locales validate --all --json
+```
+
 ## Docs
 
 → **[Getting Started](docs/getting-started.md)**: first steps<br>
