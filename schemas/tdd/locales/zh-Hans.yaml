@@ -1,11 +1,9 @@
-name: tdd
-version: 1
-description: 测试驱动开发工作流程 - tests → implementation → docs
+schema:
+  description: 测试驱动开发工作流程 - tests → implementation → docs
+
 artifacts:
-  - id: spec
-    generates: spec.md
+  spec:
     description: 定义需求的功能规范
-    template: spec.md
     instruction: |
       创建定义要构建什么的功能规范。
 
@@ -41,12 +39,9 @@ artifacts:
       ```
 
       此规范驱动测试创建 - 每个场景都成为一个测试用例。
-    requires: []
 
-  - id: tests
-    generates: "tests/*.test.ts"
+  tests:
     description: 在实施之前编写的测试文件
-    template: test.md
     instruction: |
       在实施之前编写测试（TDD 红色阶段）。
 
@@ -92,13 +87,9 @@ artifacts:
       ```
 
       完全遵循规范要求 - 测试验证规范。
-    requires:
-      - spec
 
-  - id: implementation
-    generates: "src/*.ts"
+  implementation:
     description: 使测试通过的实施代码
-    template: implementation.md
     instruction: |
       实施功能以使测试通过（TDD 绿色阶段）。
 
@@ -138,13 +129,9 @@ artifacts:
       ```
 
       不要过度设计 - 仅实施测试所需的内容。
-    requires:
-      - tests
 
-  - id: docs
-    generates: "docs/*.md"
+  docs:
     description: 已实施功能的文档
-    template: docs.md
     instruction: |
       记录已实施的功能。
 
@@ -201,5 +188,3 @@ artifacts:
       ```
 
       参考规范了解要求，参考实施了解详细信息。
-    requires:
-      - implementation

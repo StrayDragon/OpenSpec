@@ -1,11 +1,9 @@
-name: spec-driven
-version: 1
-description: 默认 OpenSpec 工作流程 - proposal → specs → design → tasks
+schema:
+  description: 默认 OpenSpec 工作流程 - proposal → specs → design → tasks
+
 artifacts:
-  - id: proposal
-    generates: proposal.md
+  proposal:
     description: 概述变更的初始提案文档
-    template: proposal.md
     instruction: |
       创建确立为什么需要此变更的提案文档。
 
@@ -22,12 +20,9 @@ artifacts:
       保持简洁（1-2 页）。专注于"为什么"而不是"如何" - 实施细节属于 design.md。
 
       这是基础 - 规范、设计和任务都基于此构建。
-    requires: []
 
-  - id: specs
-    generates: "specs/**/*.md"
+  specs:
     description: 变更的详细规范
-    template: spec.md
     instruction: |
       创建定义系统应该做什么的规范文件。
 
@@ -73,13 +68,9 @@ artifacts:
       ```
 
       规范应该是可测试的 - 每个场景都是潜在的测试用例。
-    requires:
-      - proposal
 
-  - id: design
-    generates: design.md
+  design:
     description: 包含实施细节的技术设计文档
-    template: design.md
     instruction: |
       创建解释如何实施变更的设计文档。
 
@@ -100,13 +91,9 @@ artifacts:
       专注于架构和方法，而不是逐行实施。参考提案以获取动机，参考规范以获取要求。
 
       好的设计文档解释技术决策背后的"为什么"。
-    requires:
-      - proposal
 
-  - id: tasks
-    generates: tasks.md
+  tasks:
     description: 从规范和设计派生的实施任务
-    template: tasks.md
     instruction: |
       创建分解实施工作的任务列表。
 
@@ -130,6 +117,3 @@ artifacts:
       ```
 
       参考规范了解需要构建的内容，参考设计了解如何构建。每个任务都应该是可验证的 - 您知道何时完成。
-    requires:
-      - specs
-      - design
