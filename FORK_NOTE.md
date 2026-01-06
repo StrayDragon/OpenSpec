@@ -5,26 +5,27 @@ Read this before making changes or running automation in this fork.
 
 ## Current Fork Changes
 
-- Localized templates added for `/opsx:verify` and feedback skills:
-  - `templates/en/opsx/verify.md`
-  - `templates/en/skills/openspec-verify-change.md`
-  - `templates/en/skills/feedback.md`
-  - `templates/zh-Hans/opsx/verify.md`
-  - `templates/zh-Hans/skills/openspec-verify-change.md`
-  - `templates/zh-Hans/skills/feedback.md`
-- Template loading updated to use locale-aware core templates for verify/feedback:
-  - `src/core/templates/skill-templates.ts`
+- Locale support added for core templates and schema overlays:
+  - `src/core/locale.ts`
+  - `src/commands/locales.ts`
   - `src/core/templates/template-loader.ts`
-- Locale documentation updated with new required templates:
+- Localized templates added under `templates/en` and `templates/zh-Hans` (including /opsx:verify and feedback skill templates), plus schema locale files:
+  - `schemas/spec-driven/locales/zh-Hans.yaml`
+  - `schemas/tdd/locales/zh-Hans.yaml`
+- Telemetry disabled by default in CLI:
+  - `src/telemetry/index.ts`
+- Locale documentation updated with required template coverage:
   - `LOCALES.md`
 
 ## Upstream Sync
-
+- 2026-01-20: Rebased onto `upstream/main` at `8332a09` (v0.22.0). New upstream items include:
+  - Project-level config support (`openspec/config.yaml`) with prompts, schema updates, and tests
+  - Project-local schemas and schema management CLI (schema init/validate/which/fork) with docs/tests
+  - CI/release workflow tweaks and changelog updates
 - 2026-01-17: Rebased onto `upstream/main` at `ed4d965` (v0.20.0). New upstream items include:
   - Nix flake support (`flake.nix`, `flake.lock`) plus update-flake automation
   - Nix CI validation updates and related workflow tweaks
   - New OpenSpec change records documenting the Nix features
-
 ## Test Caveats (Sandbox/Root)
 
 These tests fail in the current sandbox/root environment because permission checks
@@ -47,6 +48,6 @@ PostHog network warnings during CLI commands.
 
 ## Known Issue (Upstream)
 
-`openspec artifact-experimental-setup` currently fails because the template
-`skills/openspec-ff-change.md` is missing from `templates/`. This is an upstream
-issue; avoid using that command unless the missing template is added.
+Upstream lacks the ff/sync/archive core templates (opsx + skills). This fork
+adds them under `templates/en` and `templates/zh-Hans`, so the issue does not
+apply here.
