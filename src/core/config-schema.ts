@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { isValidLocaleTag } from './locale.js';
 
 /**
  * Zod schema for global OpenSpec configuration.
@@ -10,6 +11,11 @@ export const GlobalConfigSchema = z
       .record(z.string(), z.boolean())
       .optional()
       .default({}),
+    locale: z
+      .string()
+      .refine(isValidLocaleTag, { message: 'Invalid locale tag' })
+      .optional()
+      .default('en'),
   })
   .passthrough();
 
@@ -20,6 +26,7 @@ export type GlobalConfigType = z.infer<typeof GlobalConfigSchema>;
  */
 export const DEFAULT_CONFIG: GlobalConfigType = {
   featureFlags: {},
+  locale: 'en',
 };
 
 const KNOWN_TOP_LEVEL_KEYS = new Set(Object.keys(DEFAULT_CONFIG));
@@ -43,6 +50,13 @@ export function validateConfigKeyPath(path: string): { valid: boolean; reason?: 
   if (rootKey === 'featureFlags') {
     if (rawKeys.length > 2) {
       return { valid: false, reason: 'featureFlags values are booleans and do not support nested keys' };
+    }
+    return { valid: true };
+  }
+
+  if (rootKey === 'locale') {
+    if (rawKeys.length > 1) {
+      return { valid: false, reason: '"locale" does not support nested keys' };
     }
     return { valid: true };
   }
