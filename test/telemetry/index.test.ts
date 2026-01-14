@@ -39,6 +39,10 @@ describe('telemetry/index', () => {
 
     // Spy on console.log for notice tests
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+
+    (globalThis as { __OPENSPEC_POSTHOG__?: { PostHog?: typeof PostHog } }).__OPENSPEC_POSTHOG__ = {
+      PostHog,
+    };
   });
 
   afterEach(() => {
@@ -54,6 +58,8 @@ describe('telemetry/index', () => {
 
     // Restore all mocks
     vi.restoreAllMocks();
+
+    delete (globalThis as { __OPENSPEC_POSTHOG__?: { PostHog?: typeof PostHog } }).__OPENSPEC_POSTHOG__;
   });
 
   describe('isTelemetryEnabled', () => {

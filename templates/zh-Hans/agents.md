@@ -9,7 +9,7 @@
 - 选择唯一的 `change-id`：kebab-case 格式，动词前缀（`add-`、`update-`、`remove-`、`refactor-`）
 - 创建脚手架：`proposal.md`、`tasks.md`、`design.md`（仅在需要时）以及每个受影响功能的增量规范
 - 编写增量：使用 `## ADDED|MODIFIED|REMOVED|RENAMED Requirements`；每个要求至少包含一个 `#### Scenario:`
-- 验证：`openspec validate [change-id] --strict` 并修复问题
+- 验证：`openspec validate [change-id] --strict --no-interactive` 并修复问题
 - 请求批准：在提案获批之前不要开始实施
 
 ## 三阶段工作流程
@@ -44,7 +44,7 @@
 1. 查看 `openspec/project.md`、`openspec list` 和 `openspec list --specs` 以了解当前上下文。
 2. 选择唯一的动词前缀 `change-id`，并在 `openspec/changes/<id>/` 下创建 `proposal.md`、`tasks.md`、可选的 `design.md` 和规范增量的脚手架。
 3. 使用 `## ADDED|MODIFIED|REMOVED Requirements` 起草规范增量，每个要求至少包含一个 `#### Scenario:`。
-4. 运行 `openspec validate <id> --strict` 并在共享提案之前解决所有问题。
+4. 运行 `openspec validate <id> --strict --no-interactive` 并在共享提案之前解决所有问题。
 
 ### 阶段 2：实施变更
 将这些步骤跟踪为 TODO 并逐一完成。
@@ -61,7 +61,7 @@
 - 将 `changes/[name]/` 移至 `changes/archive/YYYY-MM-DD-[name]/`
 - 如果功能发生变化，则更新 `specs/`
 - 对于仅工具类的变更，使用 `openspec archive <change-id> --skip-specs --yes`（始终显式传递变更 ID）
-- 运行 `openspec validate --strict` 以确认归档的变更通过检查
+- 运行 `openspec validate --strict --no-interactive` 以确认归档的变更通过检查
 
 ## 在任何任务之前
 
@@ -108,7 +108,7 @@ openspec validate              # 批量验证模式
 
 # 调试
 openspec show [change] --json --deltas-only
-openspec validate [change] --strict
+openspec validate [change] --strict --no-interactive
 ```
 
 ### 命令标志
@@ -304,7 +304,7 @@ RENAMED 示例：
 
 ```bash
 # 始终使用严格模式进行全面检查
-openspec validate [change] --strict
+openspec validate [change] --strict --no-interactive
 
 # 调试增量解析
 openspec show [change] --json | jq '.deltas'
@@ -341,7 +341,7 @@ cat > openspec/changes/$CHANGE/specs/auth/spec.md << 'EOF'
 EOF
 
 # 4) 验证
-openspec validate $CHANGE --strict
+openspec validate $CHANGE --strict --no-interactive
 ```
 
 ## 多功能示例
@@ -447,7 +447,7 @@ notifications/spec.md
 ```bash
 openspec list              # 进行中的工作？
 openspec show [item]       # 查看详细信息
-openspec validate --strict # 正确吗？
+openspec validate --strict --no-interactive # 正确吗？
 openspec archive <change-id> [--yes|-y]  # 标记完成（添加 --yes 用于自动化）
 ```
 
