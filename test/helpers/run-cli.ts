@@ -1,5 +1,5 @@
 import { spawn } from 'child_process';
-import { existsSync, mkdtempSync, openSync, closeSync, readFileSync, rmSync } from 'fs';
+import { existsSync, mkdtempSync, openSync, closeSync, readFileSync, rmSync, unlinkSync } from 'fs';
 import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -9,6 +9,9 @@ const __dirname = path.dirname(__filename);
 
 const projectRoot = path.resolve(__dirname, '..', '..');
 const cliEntry = path.join(projectRoot, 'dist', 'cli', 'index.js');
+const buildLockPath = path.join(os.tmpdir(), 'openspec-cli-build.lock');
+const buildLockTimeoutMs = 120_000;
+const buildLockPollMs = 100;
 
 let buildPromise: Promise<void> | undefined;
 
@@ -54,13 +57,52 @@ function runCommand(command: string, args: string[], options: RunCommandOptions 
   });
 }
 
+async function acquireBuildLock(): Promise<number> {
+  const start = Date.now();
+  while (true) {
+    try {
+      return openSync(buildLockPath, 'wx');
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code !== 'EEXIST') throw error;
+      if (Date.now() - start > buildLockTimeoutMs) {
+        throw new Error(`Timed out waiting for build lock at ${buildLockPath}`);
+      }
+      await new Promise(resolve => setTimeout(resolve, buildLockPollMs));
+    }
+  }
+}
+
+function releaseBuildLock(fd: number): void {
+  try {
+    closeSync(fd);
+  } catch {
+    // Ignore close failures; we'll still attempt to remove the lock file.
+  }
+  try {
+    unlinkSync(buildLockPath);
+  } catch {
+    // Ignore missing lock files.
+  }
+}
+
 export async function ensureCliBuilt() {
   if (existsSync(cliEntry) && process.env.OPEN_SPEC_FORCE_BUILD !== '1') {
     return;
   }
 
   if (!buildPromise) {
-    buildPromise = runCommand('pnpm', ['run', 'build']).catch((error) => {
+    buildPromise = (async () => {
+      const lockFd = await acquireBuildLock();
+      try {
+        if (existsSync(cliEntry) && process.env.OPEN_SPEC_FORCE_BUILD !== '1') {
+          return;
+        }
+        await runCommand('pnpm', ['run', 'build']);
+      } finally {
+        releaseBuildLock(lockFd);
+      }
+    })().catch((error) => {
       buildPromise = undefined;
       throw error;
     });

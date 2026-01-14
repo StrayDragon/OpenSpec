@@ -15,6 +15,11 @@ export async function setup() {
   originalForceBuild = process.env.OPEN_SPEC_FORCE_BUILD;
   process.env.OPEN_SPEC_FORCE_BUILD = '1';
   await ensureCliBuilt();
+  if (originalForceBuild === undefined) {
+    delete process.env.OPEN_SPEC_FORCE_BUILD;
+  } else {
+    process.env.OPEN_SPEC_FORCE_BUILD = originalForceBuild;
+  }
 }
 
 // Global teardown to ensure clean exit
