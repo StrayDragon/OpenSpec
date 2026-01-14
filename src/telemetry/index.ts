@@ -8,7 +8,7 @@
  * - Auto-disabled in CI environments
  * - Anonymous ID is a random UUID with no relation to the user
  */
-import { PostHog } from 'posthog-node';
+import { createRequire } from 'module';
 import { randomUUID } from 'crypto';
 import { getTelemetryConfig, updateTelemetryConfig } from './config.js';
 
@@ -18,7 +18,26 @@ const POSTHOG_API_KEY = 'phc_Hthu8YvaIJ9QaFKyTG4TbVwkbd5ktcAFzVTKeMmoW2g';
 // Using reverse proxy to avoid ad blockers and keep traffic on our domain
 const POSTHOG_HOST = 'https://edge.openspec.dev';
 
-let posthogClient: PostHog | null = null;
+type PostHogClient = {
+  capture: (payload: {
+    distinctId: string;
+    event: string;
+    properties: Record<string, unknown>;
+  }) => void;
+  shutdown: () => Promise<void>;
+};
+
+type PostHogConstructor = new (
+  apiKey: string,
+  options: {
+    host: string;
+    flushAt: number;
+    flushInterval: number;
+  }
+) => PostHogClient;
+
+let posthogClient: PostHogClient | null = null;
+let posthogConstructor: PostHogConstructor | null | undefined;
 let anonymousId: string | null = null;
 
 /**
@@ -75,9 +94,36 @@ export async function getOrCreateAnonymousId(): Promise<string> {
  * Get the PostHog client instance.
  * Creates it on first call with CLI-optimized settings.
  */
-function getClient(): PostHog {
+function loadPostHogConstructor(): PostHogConstructor | null {
+  if (posthogConstructor !== undefined) {
+    return posthogConstructor;
+  }
+
+  const injected = (globalThis as { __OPENSPEC_POSTHOG__?: { PostHog?: PostHogConstructor } })
+    .__OPENSPEC_POSTHOG__;
+  if (injected?.PostHog) {
+    posthogConstructor = injected.PostHog;
+    return posthogConstructor;
+  }
+
+  try {
+    const require = createRequire(import.meta.url);
+    const mod = require('posthog-node') as { PostHog?: PostHogConstructor };
+    posthogConstructor = mod.PostHog ?? null;
+  } catch {
+    posthogConstructor = null;
+  }
+
+  return posthogConstructor;
+}
+
+function getClient(): PostHogClient | null {
   if (!posthogClient) {
-    posthogClient = new PostHog(POSTHOG_API_KEY, {
+    const PostHogCtor = loadPostHogConstructor();
+    if (!PostHogCtor) {
+      return null;
+    }
+    posthogClient = new PostHogCtor(POSTHOG_API_KEY, {
       host: POSTHOG_HOST,
       flushAt: 1, // Send immediately, don't batch
       flushInterval: 0, // No timer-based flushing
@@ -100,6 +146,9 @@ export async function trackCommand(commandName: string, version: string): Promis
   try {
     const userId = await getOrCreateAnonymousId();
     const client = getClient();
+    if (!client) {
+      return;
+    }
 
     client.capture({
       distinctId: userId,
