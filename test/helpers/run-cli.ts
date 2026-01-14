@@ -1,5 +1,6 @@
 import { spawn } from 'child_process';
-import { existsSync } from 'fs';
+import { existsSync, mkdtempSync, openSync, closeSync, readFileSync, rmSync } from 'fs';
+import os from 'os';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -54,7 +55,7 @@ function runCommand(command: string, args: string[], options: RunCommandOptions 
 }
 
 export async function ensureCliBuilt() {
-  if (existsSync(cliEntry)) {
+  if (existsSync(cliEntry) && process.env.OPEN_SPEC_FORCE_BUILD !== '1') {
     return;
   }
 
@@ -77,6 +78,11 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
 
   const finalArgs = Array.isArray(args) ? args : [args];
   const invocation = [cliEntry, ...finalArgs].join(' ');
+  const tempDir = mkdtempSync(path.join(os.tmpdir(), 'openspec-cli-'));
+  const stdoutPath = path.join(tempDir, 'stdout.txt');
+  const stderrPath = path.join(tempDir, 'stderr.txt');
+  const stdoutFd = openSync(stdoutPath, 'w');
+  const stderrFd = openSync(stderrPath, 'w');
 
   return new Promise<RunCLIResult>((resolve, reject) => {
     const child = spawn(process.execPath, [cliEntry, ...finalArgs], {
@@ -86,7 +92,7 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
         OPEN_SPEC_INTERACTIVE: '0',
         ...options.env,
       },
-      stdio: ['pipe', 'pipe', 'pipe'],
+      stdio: ['pipe', stdoutFd, stderrFd],
       windowsHide: true,
     });
 
@@ -104,31 +110,23 @@ export async function runCLI(args: string[] = [], options: RunCLIOptions = {}): 
         }, options.timeoutMs)
       : undefined;
 
-    child.stdout?.setEncoding('utf-8');
-    child.stdout?.on('data', (chunk) => {
-      stdout += chunk;
-    });
-
-    child.stderr?.setEncoding('utf-8');
-    child.stderr?.on('data', (chunk) => {
-      stderr += chunk;
-    });
-
     child.on('error', (error) => {
       if (timeout) clearTimeout(timeout);
-      // Explicitly destroy streams to prevent hanging handles
-      child.stdout?.destroy();
-      child.stderr?.destroy();
       child.stdin?.destroy();
+      closeSync(stdoutFd);
+      closeSync(stderrFd);
+      rmSync(tempDir, { recursive: true, force: true });
       reject(error);
     });
 
     child.on('close', (code, signal) => {
       if (timeout) clearTimeout(timeout);
-      // Explicitly destroy streams to prevent hanging handles
-      child.stdout?.destroy();
-      child.stderr?.destroy();
       child.stdin?.destroy();
+      closeSync(stdoutFd);
+      closeSync(stderrFd);
+      stdout = readFileSync(stdoutPath, 'utf-8');
+      stderr = readFileSync(stderrPath, 'utf-8');
+      rmSync(tempDir, { recursive: true, force: true });
       resolve({
         exitCode: code,
         signal,
