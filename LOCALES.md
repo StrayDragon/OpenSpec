@@ -52,9 +52,12 @@ templates/<locale>/slash/archive.md
 templates/<locale>/skills/openspec-new-change.md
 templates/<locale>/skills/openspec-continue-change.md
 templates/<locale>/skills/openspec-apply-change.md
+templates/<locale>/skills/openspec-verify-change.md
+templates/<locale>/skills/feedback.md
 templates/<locale>/opsx/new.md
 templates/<locale>/opsx/continue.md
 templates/<locale>/opsx/apply.md
+templates/<locale>/opsx/verify.md
 ```
 
 ## Schema Templates

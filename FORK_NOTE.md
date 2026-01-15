@@ -12,6 +12,14 @@ Read this before making changes or running automation in this fork.
 - Localized templates added under `templates/en` and `templates/zh-Hans` (including /opsx:verify, /opsx:bulk-archive, and feedback/bulk-archive skill templates), plus schema locale files:
   - `schemas/spec-driven/locales/zh-Hans.yaml`
   - `schemas/tdd/locales/zh-Hans.yaml`
+- Verify/feedback templates wired into locale-aware core templates:
+  - `templates/en/opsx/verify.md`
+  - `templates/en/skills/openspec-verify-change.md`
+  - `templates/en/skills/feedback.md`
+  - `templates/zh-Hans/opsx/verify.md`
+  - `templates/zh-Hans/skills/openspec-verify-change.md`
+  - `templates/zh-Hans/skills/feedback.md`
+  - `src/core/templates/skill-templates.ts`
 - Telemetry disabled by default in CLI:
   - `src/telemetry/index.ts`
 - Locale documentation updated with required template coverage:
@@ -22,6 +30,7 @@ Read this before making changes or running automation in this fork.
   - `vitest.setup.ts`
 
 ## Upstream Sync
+
 - 2026-02-02: Fetched `upstream/main` (now at `4573c28`) and began rebase. Notable upstream changes since `26ed336` include:
   - Onboarding improvements: fixed preflight check, added Windows PowerShell command alternatives, and corrected archive path guidance.
   - Archive workflow fixes: fallback to copy+remove on EPERM/EXDEV and updated sync/command hints in workflow completion messaging.

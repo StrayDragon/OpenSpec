@@ -156,3 +156,6 @@ opencode.json
 
 # Codex
 .codex/
+
+# Local editor artifacts
+.nvimlog
