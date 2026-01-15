@@ -149,3 +149,5 @@ CLAUDE.md
 # Pnpm
 .pnpm-store/
 result
+# Local editor artifacts
+.nvimlog
