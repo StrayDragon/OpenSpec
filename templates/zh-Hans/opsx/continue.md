@@ -78,7 +78,7 @@
     - 列出具有 kebab-case 名称的新功能（例如，`user-auth`、`data-export`）
     - 列出需要规范更新的修改功能
   - 列出的每个功能都需要在下一阶段有相应的规范文件。
-- **specs/*.md**：为提案中列出的每个功能创建一个规范。使用 `specs/<capability-name>/spec.md` 路径。
+- **specs/<capability>/spec.md**：为提案的 Capabilities 部分中列出的每个功能创建一个规范（使用功能名称，而不是变更名称）。
 - **design.md**：记录技术决策、架构和实施方法。
 - **tasks.md**：根据规范和设计将实施分解为带复选框的任务。
 

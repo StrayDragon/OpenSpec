@@ -26,7 +26,9 @@ artifacts:
     instruction: |
       创建定义系统应该做什么的规范文件。
 
-      在 specs/<name>/spec.md 中为每个功能/功能区域创建一个规范文件。
+      为提案的 Capabilities 部分中列出的每个功能创建一个规范文件。
+      - 新功能：使用提案中的精确 kebab-case 名称（specs/<capability>/spec.md）。
+      - 已修改功能：创建位于 specs/<capability>/spec.md 的增量规范时，使用 openspec/specs/<capability>/ 中现有的规范文件夹名称。
 
       增量操作（使用 ## 标题）：
       - **ADDED Requirements**：新功能
@@ -93,13 +95,15 @@ artifacts:
       好的设计文档解释技术决策背后的"为什么"。
 
   tasks:
-    description: 从规范和设计派生的实施任务
+    description: 可跟踪的实施清单
     instruction: |
       创建分解实施工作的任务列表。
 
+      **重要：严格遵循下方模板。** apply 阶段会解析复选框格式来跟踪进度。不使用 `- [ ]` 的任务不会被跟踪。
+
       指南：
       - 在 ## 编号标题下对相关任务进行分组
-      - 每个任务是一个复选框：- [ ] X.Y 任务描述
+      - 每个任务必须是复选框：`- [ ] X.Y 任务描述`
       - 任务应该足够小，可以在一个会话中完成
       - 按依赖关系对任务进行排序（必须先做什么？）
 

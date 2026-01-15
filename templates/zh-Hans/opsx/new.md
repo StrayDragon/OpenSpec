@@ -18,7 +18,6 @@
    除非用户明确要求使用其他工作流，否则使用默认 schema（省略 `--schema`）。
 
    **只有当用户提到以下内容时才使用其他 schema：**
-   - "tdd" 或 "test-driven" → 使用 `--schema tdd`
    - 某个具体 schema 名称 → 使用 `--schema <name>`
    - "show workflows" 或 "what workflows" → 运行 `openspec schemas --json` 并让他们选择
 
