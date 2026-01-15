@@ -16,7 +16,6 @@ Read this before making changes or running automation in this fork.
   - `src/telemetry/index.ts`
 - Locale documentation updated with required template coverage:
   - `LOCALES.md`
-
 ## Upstream Sync
 - 2026-01-20: Rebased onto `upstream/main` at `8332a09` (v0.22.0). New upstream items include:
   - Project-level config support (`openspec/config.yaml`) with prompts, schema updates, and tests
