@@ -33,6 +33,9 @@ import {
 } from '../commands/workflow/index.js';
 import { maybeShowTelemetryNotice, trackCommand, shutdown } from '../telemetry/index.js';
 
+// Fork override: disable telemetry to avoid post-run network waits.
+process.env.OPENSPEC_TELEMETRY = '0';
+
 const program = new Command();
 const require = createRequire(import.meta.url);
 const { version } = require('../../package.json');
