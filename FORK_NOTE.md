@@ -28,7 +28,6 @@ Read this before making changes or running automation in this fork.
   - `.github/workflows/ci.yml`
   - `test/helpers/run-cli.ts`
   - `vitest.setup.ts`
-
 ## Upstream Sync
 
 - 2026-02-02: Fetched `upstream/main` (now at `4573c28`) and began rebase. Notable upstream changes since `26ed336` include:
