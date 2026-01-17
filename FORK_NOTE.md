@@ -61,6 +61,13 @@ Read this before making changes or running automation in this fork.
   - Nix CI validation updates and related workflow tweaks
   - New OpenSpec change records documenting the Nix features
 
+## Upstream Sync
+
+- 2026-01-17: Rebased onto `upstream/main` at `ed4d965` (v0.20.0). New upstream items include:
+  - Nix flake support (`flake.nix`, `flake.lock`) plus update-flake automation
+  - Nix CI validation updates and related workflow tweaks
+  - New OpenSpec change records documenting the Nix features
+
 ## Test Caveats (Sandbox/Root)
 
 These tests fail in the current sandbox/root environment because permission checks
