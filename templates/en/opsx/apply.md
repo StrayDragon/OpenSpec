@@ -1,26 +1,34 @@
 Implement tasks from an OpenSpec change.
 
-**Input**: Optionally specify `--change <name>` after `/opsx:apply`. If omitted, MUST prompt for available changes.
+**Input**: Optionally specify a change name (e.g., `/opsx:apply add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
-1. **If no change name provided, prompt for selection**
+1. **Select the change**
 
-   Run `openspec list --json` to get available changes. Use the **AskUserQuestion tool** to let the user select.
+   If a name is provided, use it. Otherwise:
+   - Infer from conversation context if the user mentioned a change
+   - Auto-select if only one active change exists
+   - If ambiguous, run `openspec list --json` to get available changes and use the **AskUserQuestion tool** to let the user select
 
-   Show changes that have tasks.md (implementation-ready).
-   Mark changes with incomplete tasks as "(In Progress)".
+   Always announce: "Using change: <name>" and how to override (e.g., `/opsx:apply <other>`).
 
-   **IMPORTANT**: Do NOT guess or auto-select a change. Always let the user choose.
+2. **Check status to understand the schema**
+   ```bash
+   openspec status --change "<name>" --json
+   ```
+   Parse the JSON to understand:
+   - `schemaName`: The workflow being used (e.g., "spec-driven", "tdd")
+   - Which artifact contains the tasks (typically "tasks" for spec-driven, check status for others)
 
-2. **Get apply instructions**
+3. **Get apply instructions**
 
    ```bash
    openspec instructions apply --change "<name>" --json
    ```
 
    This returns:
-   - Context file paths (proposal, specs, design, tasks)
+   - Context file paths (varies by schema)
    - Progress (total, complete, remaining)
    - Task list with status
    - Dynamic instruction based on current state
@@ -30,28 +38,29 @@ Implement tasks from an OpenSpec change.
    - If `state: "all_done"`: congratulate, suggest archive
    - Otherwise: proceed to implementation
 
-3. **Read context files**
+4. **Read context files**
 
-   Read the files listed in `contextFiles`:
-   - `proposal` - why and what
-   - `specs` - requirements and scenarios (use glob pattern to find all)
-   - `design` - technical approach (if exists)
-   - `tasks` - the implementation checklist
+   Read the files listed in `contextFiles` from the apply instructions output.
+   The files depend on the schema being used:
+   - **spec-driven**: proposal, specs, design, tasks
+   - **tdd**: spec, tests, implementation, docs
+   - Other schemas: follow the contextFiles from CLI output
 
-4. **Show current progress**
+5. **Show current progress**
 
    Display:
+   - Schema being used
    - Progress: "N/M tasks complete"
    - Remaining tasks overview
    - Dynamic instruction from CLI
 
-5. **Implement tasks (loop until done or blocked)**
+6. **Implement tasks (loop until done or blocked)**
 
    For each pending task:
    - Show which task is being worked on
    - Make the code changes required
    - Keep changes minimal and focused
-   - Mark task complete in tasks.md: `- [ ]` → `- [x]`
+   - Mark task complete in the tasks file: `- [ ]` → `- [x]`
    - Continue to next task
 
    **Pause if:**
@@ -60,7 +69,7 @@ Implement tasks from an OpenSpec change.
    - Error or blocker encountered → report and wait for guidance
    - User interrupts
 
-6. **On completion or pause, show status**
+7. **On completion or pause, show status**
 
    Display:
    - Tasks completed this session
@@ -71,7 +80,7 @@ Implement tasks from an OpenSpec change.
 **Output During Implementation**
 
 ```
-## Implementing: <change-name>
+## Implementing: <change-name> (schema: <schema-name>)
 
 Working on task 3/7: <task description>
 [...implementation happening...]
@@ -88,6 +97,7 @@ Working on task 4/7: <task description>
 ## Implementation Complete
 
 **Change:** <change-name>
+**Schema:** <schema-name>
 **Progress:** 7/7 tasks complete ✓
 
 ### Completed This Session
@@ -104,6 +114,7 @@ All tasks complete! Ready to archive this change.
 ## Implementation Paused
 
 **Change:** <change-name>
+**Schema:** <schema-name>
 **Progress:** 4/7 tasks complete
 
 ### Issue Encountered
@@ -119,16 +130,17 @@ What would you like to do?
 
 **Guardrails**
 - Keep going through tasks until done or blocked
-- Always read context before starting (specs, design)
+- Always read context files before starting (from the apply instructions output)
 - If task is ambiguous, pause and ask before implementing
 - If implementation reveals issues, pause and suggest artifact updates
 - Keep code changes minimal and scoped to each task
 - Update task checkbox immediately after completing each task
 - Pause on errors, blockers, or unclear requirements - don't guess
+- Use contextFiles from CLI output, don't assume specific file names
 
 **Fluid Workflow Integration**
 
 This skill supports the "actions on a change" model:
 
-- **Can be invoked anytime**: Before all artifacts are done (if tasks.md exists), after partial implementation, interleaved with other actions
+- **Can be invoked anytime**: Before all artifacts are done (if tasks exist), after partial implementation, interleaved with other actions
 - **Allows artifact updates**: If implementation reveals design issues, suggest updating artifacts - not phase-locked, work fluidly

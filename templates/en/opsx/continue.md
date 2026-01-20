@@ -1,6 +1,6 @@
 Continue working on a change by creating the next artifact.
 
-**Input**: Optionally specify `--change <name>` after `/opsx:continue`. If omitted, MUST prompt for available changes.
+**Input**: Optionally specify a change name after `/opsx:continue` (e.g., `/opsx:continue add-auth`). If omitted, check if it can be inferred from conversation context. If vague or ambiguous you MUST prompt for available changes.
 
 **Steps**
 
@@ -10,6 +10,7 @@ Continue working on a change by creating the next artifact.
 
    Present the top 3-4 most recently modified changes as options, showing:
    - Change name
+   - Schema (from `schema` field if present, otherwise "spec-driven")
    - Status (e.g., "0/5 tasks", "complete", "no tasks")
    - How recently it was modified (from `lastModified` field)
 
@@ -21,7 +22,10 @@ Continue working on a change by creating the next artifact.
    ```bash
    openspec status --change "<name>" --json
    ```
-   Parse the JSON to understand current state.
+   Parse the JSON to understand current state. The response includes:
+   - `schemaName`: The workflow schema being used (e.g., "spec-driven", "tdd")
+   - `artifacts`: Array of artifacts with their status ("done", "ready", "blocked")
+   - `isComplete`: Boolean indicating if all artifacts are complete
 
 3. **Act based on status**:
 
@@ -29,7 +33,7 @@ Continue working on a change by creating the next artifact.
 
    **If all artifacts are complete (`isComplete: true`)**:
    - Congratulate the user
-   - Show final status
+   - Show final status including the schema used
    - Suggest: "All artifacts created! You can now implement this change or archive it."
    - STOP
 
@@ -64,23 +68,31 @@ Continue working on a change by creating the next artifact.
 
 After each invocation, show:
 - Which artifact was created
+- Schema workflow being used
 - Current progress (N/M complete)
 - What artifacts are now unlocked
 - Prompt: "Run `/opsx:continue` to create the next artifact"
 
 **Artifact Creation Guidelines**
 
-When filling in templates:
+The artifact types and their purpose depend on the schema. Use the `instruction` field from the instructions output to understand what to create.
 
+Common artifact patterns:
+
+**spec-driven schema** (proposal → specs → design → tasks):
 - **proposal.md**: Ask user about the change if not clear. Fill in Why, What Changes, Capabilities, Impact.
-  - **IMPORTANT**: The Capabilities section is critical. Before filling it in:
-    - Check `openspec/specs/` for existing capabilities
-    - List new capabilities with kebab-case names (e.g., `user-auth`, `data-export`)
-    - List modified capabilities that need spec updates
-  - Each capability listed will need a corresponding spec file in the next phase.
-- **specs/*.md**: Create one spec per capability listed in the proposal. Use `specs/<capability-name>/spec.md` path.
+  - The Capabilities section is critical - each capability listed will need a spec file.
+- **specs/*.md**: Create one spec per capability listed in the proposal.
 - **design.md**: Document technical decisions, architecture, and implementation approach.
-- **tasks.md**: Break down implementation into checkboxed tasks based on specs and design.
+- **tasks.md**: Break down implementation into checkboxed tasks.
+
+**tdd schema** (spec → tests → implementation → docs):
+- **spec.md**: Feature specification defining what to build.
+- **tests/*.test.ts**: Write tests BEFORE implementation (TDD red phase).
+- **src/*.ts**: Implement to make tests pass (TDD green phase).
+- **docs/*.md**: Document the implemented feature.
+
+For other schemas, follow the `instruction` field from the CLI output.
 
 **Guardrails**
 - Create ONE artifact per invocation
@@ -88,3 +100,4 @@ When filling in templates:
 - Never skip artifacts or create out of order
 - If context is unclear, ask the user before creating
 - Verify the artifact file exists after writing before marking progress
+- Use the schema's artifact sequence, don't assume specific artifact names
