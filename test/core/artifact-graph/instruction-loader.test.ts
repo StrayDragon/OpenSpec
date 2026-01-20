@@ -90,10 +90,10 @@ describe('instruction-loader', () => {
     });
 
     it('loads localized schema templates with fallback', () => {
-      const localized = loadTemplate('localized-test', 'proposal.md', 'zh-Hans');
+      const localized = loadTemplate('localized-test', 'proposal.md', undefined, 'zh-Hans');
       expect(localized).toBe('Localized template');
 
-      const fallback = loadTemplate('localized-test', 'proposal.md', 'fr');
+      const fallback = loadTemplate('localized-test', 'proposal.md', undefined, 'fr');
       expect(fallback).toBe('Base template');
     });
 
