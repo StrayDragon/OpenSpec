@@ -18,6 +18,7 @@ export const CORE_TEMPLATE_FILES = [
   'skills/openspec-ff-change.md',
   'skills/openspec-sync-specs.md',
   'skills/openspec-archive-change.md',
+  'skills/openspec-bulk-archive-change.md',
   'skills/openspec-verify-change.md',
   'skills/feedback.md',
   'opsx/new.md',
@@ -26,6 +27,7 @@ export const CORE_TEMPLATE_FILES = [
   'opsx/ff.md',
   'opsx/sync.md',
   'opsx/archive.md',
+  'opsx/bulk-archive.md',
   'opsx/verify.md',
 ] as const;
 
