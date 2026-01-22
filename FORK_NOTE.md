@@ -9,7 +9,7 @@ Read this before making changes or running automation in this fork.
   - `src/core/locale.ts`
   - `src/commands/locales.ts`
   - `src/core/templates/template-loader.ts`
-- Localized templates added under `templates/en` and `templates/zh-Hans` (including /opsx:verify and feedback skill templates), plus schema locale files:
+- Localized templates added under `templates/en` and `templates/zh-Hans` (including /opsx:verify, /opsx:bulk-archive, and feedback/bulk-archive skill templates), plus schema locale files:
   - `schemas/spec-driven/locales/zh-Hans.yaml`
   - `schemas/tdd/locales/zh-Hans.yaml`
 - Telemetry disabled by default in CLI:
@@ -18,6 +18,12 @@ Read this before making changes or running automation in this fork.
   - `LOCALES.md`
 
 ## Upstream Sync
+- 2026-01-22: Rebased onto `upstream/main` at `d485281` (v0.23.0+). New upstream items include:
+  - Bulk-archive skill + `/opsx:bulk-archive` support
+  - Experimental setup simplification and config creation fixes
+  - Instructions JSON output split into context/rules/template fields
+  - Multi-provider skill generation support
+  - Release workflow tweaks and minor doc/link cleanups
 - 2026-01-20: Rebased onto `upstream/main` at `8332a09` (v0.22.0). New upstream items include:
   - Project-level config support (`openspec/config.yaml`) with prompts, schema updates, and tests
   - Project-local schemas and schema management CLI (schema init/validate/which/fork) with docs/tests
@@ -48,6 +54,6 @@ PostHog network warnings during CLI commands.
 
 ## Known Issue (Upstream)
 
-Upstream lacks the ff/sync/archive core templates (opsx + skills). This fork
-adds them under `templates/en` and `templates/zh-Hans`, so the issue does not
-apply here.
+Upstream lacks the file-based core templates for opsx/skill workflows (ff/sync/archive/bulk-archive/verify).
+This fork adds them under `templates/en` and `templates/zh-Hans`, so the issue
+does not apply here.
