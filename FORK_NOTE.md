@@ -18,6 +18,11 @@ Read this before making changes or running automation in this fork.
   - `LOCALES.md`
 
 ## Upstream Sync
+- 2026-01-24: Rebased onto `upstream/main` at `847aa81` (v0.23.0+). New upstream items include:
+  - Unified init/experimental flow with interactive setup UI and refresh detection
+  - Artifact workflow refactor into modular workflow commands and shared helpers
+  - Agent Skills spec optional metadata fields
+  - README cleanup/revert and minor doc/script maintenance
 - 2026-01-22: Rebased onto `upstream/main` at `d485281` (v0.23.0+). New upstream items include:
   - Bulk-archive skill + `/opsx:bulk-archive` support
   - Experimental setup simplification and config creation fixes
