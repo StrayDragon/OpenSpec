@@ -18,6 +18,9 @@ Read this before making changes or running automation in this fork.
   - `LOCALES.md`
 
 ## Upstream Sync
+- 2026-01-25: Rebased onto `upstream/main` at `26ed336` (v0.23.0+). New upstream items include:
+  - parseTasksFile regex handles trailing whitespace in task lines
+  - generateApplyInstructions passes the missing projectRoot param to resolveSchema
 - 2026-01-24: Rebased onto `upstream/main` at `847aa81` (v0.23.0+). New upstream items include:
   - Unified init/experimental flow with interactive setup UI and refresh detection
   - Artifact workflow refactor into modular workflow commands and shared helpers
