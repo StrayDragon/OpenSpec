@@ -9,7 +9,7 @@ Read this before making changes or running automation in this fork.
   - `src/core/locale.ts`
   - `src/commands/locales.ts`
   - `src/core/templates/template-loader.ts`
-- Localized templates added under `templates/en` and `templates/zh-Hans` (including /opsx:verify, /opsx:bulk-archive, and feedback/bulk-archive skill templates), plus schema locale files:
+- Localized templates added under `templates/en` and `templates/zh-Hans` (including /opsx:verify, /opsx:bulk-archive, /opsx:onboard, and feedback/bulk-archive/onboard skill templates), plus schema locale files:
   - `schemas/spec-driven/locales/zh-Hans.yaml`
   - `schemas/tdd/locales/zh-Hans.yaml`
 - Telemetry disabled by default in CLI:
@@ -18,6 +18,10 @@ Read this before making changes or running automation in this fork.
   - `LOCALES.md`
 
 ## Upstream Sync
+- 2026-01-26: Rebased onto `upstream/main` at `0e6f42c` (v1.0.0). New upstream items include:
+  - Onboarding skill + `/opsx:onboard` workflow with new change records
+  - Documentation overhaul with new docs set, README refresh, and README_OLD archive
+  - Release prep + version bump (changeset, CHANGELOG, package.json update)
 - 2026-01-25: Rebased onto `upstream/main` at `26ed336` (v0.23.0+). New upstream items include:
   - parseTasksFile regex handles trailing whitespace in task lines
   - generateApplyInstructions passes the missing projectRoot param to resolveSchema
