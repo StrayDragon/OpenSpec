@@ -18,6 +18,9 @@ Read this before making changes or running automation in this fork.
   - `LOCALES.md`
 
 ## Upstream Sync
+- 2026-01-26: Rebased onto `upstream/main` at `0bfe1d4`. New upstream items include:
+  - Customization guide rewrite to document schema commands and workflows
+  - Added language tags to customization guide code blocks (Markdown lint)
 - 2026-01-26: Rebased onto `upstream/main` at `0e6f42c` (v1.0.0). New upstream items include:
   - Onboarding skill + `/opsx:onboard` workflow with new change records
   - Documentation overhaul with new docs set, README refresh, and README_OLD archive
