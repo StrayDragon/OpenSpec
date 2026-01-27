@@ -11,13 +11,17 @@ Read this before making changes or running automation in this fork.
   - `src/core/templates/template-loader.ts`
 - Localized templates added under `templates/en` and `templates/zh-Hans` (including /opsx:verify, /opsx:bulk-archive, /opsx:onboard, and feedback/bulk-archive/onboard skill templates), plus schema locale files:
   - `schemas/spec-driven/locales/zh-Hans.yaml`
-  - `schemas/tdd/locales/zh-Hans.yaml`
 - Telemetry disabled by default in CLI:
   - `src/telemetry/index.ts`
 - Locale documentation updated with required template coverage:
   - `LOCALES.md`
 
 ## Upstream Sync
+- 2026-01-27: Rebased onto `upstream/main` at `fc0d798` (v1.0.1). New upstream items include:
+  - Clarified spec naming and task checkbox requirements in spec-driven schema/docs
+  - Removed TDD schema and references across docs/tests
+  - Fixed onboarding archive path and added follow-up changeset
+  - Version bump and package release metadata updates
 - 2026-01-26: Rebased onto `upstream/main` at `0bfe1d4`. New upstream items include:
   - Customization guide rewrite to document schema commands and workflows
   - Added language tags to customization guide code blocks (Markdown lint)
