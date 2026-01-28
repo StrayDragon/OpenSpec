@@ -17,6 +17,10 @@ Read this before making changes or running automation in this fork.
   - `LOCALES.md`
 
 ## Upstream Sync
+- 2026-01-28: Rebased onto `upstream/main` at `86d2e04` (v1.0.2). New upstream items include:
+  - Nix flake improvements: dynamic versioning from package.json, source filtering, update-flake.sh portability fixes, and build verification correctness
+  - CI Nix action bumps and related workflow/spec updates
+  - Spec naming clarification changeset rolled into the v1.0.2 release (CHANGELOG + version bump)
 - 2026-01-27: Rebased onto `upstream/main` at `fc0d798` (v1.0.1). New upstream items include:
   - Clarified spec naming and task checkbox requirements in spec-driven schema/docs
   - Removed TDD schema and references across docs/tests
