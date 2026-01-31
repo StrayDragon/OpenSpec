@@ -16,8 +16,13 @@ Read this before making changes or running automation in this fork.
   - `src/telemetry/index.ts`
 - Locale documentation updated with required template coverage:
   - `LOCALES.md`
+- CI/test stability tweaks for the fork (pnpm version alignment and CLI build fixes):
+  - `.github/workflows/ci.yml`
+  - `test/helpers/run-cli.ts`
+  - `vitest.setup.ts`
 
 ## Upstream Sync
+- 2026-01-31: Unable to fetch `upstream/main` in this environment (HTTPS connections time out), so no rebase performed. Last known upstream ref remains `26ed336`.
 - 2026-01-25: Rebased onto `upstream/main` at `26ed336` (v0.23.0+). New upstream items include:
   - parseTasksFile regex handles trailing whitespace in task lines
   - generateApplyInstructions passes the missing projectRoot param to resolveSchema
