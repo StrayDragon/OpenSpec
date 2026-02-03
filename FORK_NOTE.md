@@ -31,6 +31,10 @@ Read this before making changes or running automation in this fork.
 
 ## Upstream Sync
 
+- 2026-02-03: Rebased onto `upstream/main` at `62d4391`. Upstream change improves Windows test compatibility:
+  - `test/commands/spec.test.ts` now reads spec content via `fs.readFile` (no Unix `cat`).
+  - `test/commands/validate.enriched-output.test.ts` avoids shell `mkdir -p`/`bash` in favor of `fs` helpers.
+  - `test/utils/file-system.test.ts` skips symlink test on Windows (admin-only).
 - 2026-02-02: Fetched `upstream/main` (now at `4573c28`) and began rebase. Notable upstream changes since `26ed336` include:
   - Onboarding improvements: fixed preflight check, added Windows PowerShell command alternatives, and corrected archive path guidance.
   - Archive workflow fixes: fallback to copy+remove on EPERM/EXDEV and updated sync/command hints in workflow completion messaging.
