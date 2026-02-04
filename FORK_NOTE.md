@@ -31,6 +31,7 @@ Read this before making changes or running automation in this fork.
 
 ## Upstream Sync
 
+- 2026-02-04: Fetched `upstream/main` (still at `62d4391`) and rebased; no new upstream commits since 2026-02-03.
 - 2026-02-03: Rebased onto `upstream/main` at `62d4391`. Upstream change improves Windows test compatibility:
   - `test/commands/spec.test.ts` now reads spec content via `fs.readFile` (no Unix `cat`).
   - `test/commands/validate.enriched-output.test.ts` avoids shell `mkdir -p`/`bash` in favor of `fs` helpers.
