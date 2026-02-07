@@ -57,7 +57,10 @@ templates/<locale>/skills/openspec-sync-specs.md
 templates/<locale>/skills/openspec-archive-change.md
 templates/<locale>/skills/openspec-bulk-archive-change.md
 templates/<locale>/skills/openspec-verify-change.md
+templates/<locale>/skills/openspec-explore.md
+templates/<locale>/skills/openspec-onboard.md
 templates/<locale>/skills/feedback.md
+templates/<locale>/opsx/explore.md
 templates/<locale>/opsx/new.md
 templates/<locale>/opsx/continue.md
 templates/<locale>/opsx/apply.md
@@ -66,6 +69,7 @@ templates/<locale>/opsx/sync.md
 templates/<locale>/opsx/archive.md
 templates/<locale>/opsx/bulk-archive.md
 templates/<locale>/opsx/verify.md
+templates/<locale>/opsx/onboard.md
 ```
 
 ## Schema Templates

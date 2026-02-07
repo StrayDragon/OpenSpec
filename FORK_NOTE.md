@@ -1,10 +1,16 @@
 # Fork Notes
 
+> 先 rebase，再只看 locale 相关四个关键文件冲突，最后跑 `openspec locales validate --all --json` + 四个定向测试。
+
 This file records fork-specific changes and environment caveats.
 Read this before making changes or running automation in this fork.
 
 ## Current Fork Changes
 
+- Fork objective is locale-first with low-intrusion behavior:
+  - Provide Chinese-equivalent prompts/skills/templates for injected content
+  - Keep default English behavior as fallback
+  - Minimize invasive diffs to ease recurring upstream rebase/merge
 - Locale support added for core templates and schema overlays:
   - `src/core/locale.ts`
   - `src/commands/locales.ts`
@@ -24,13 +30,70 @@ Read this before making changes or running automation in this fork.
   - `src/telemetry/index.ts`
 - Locale documentation updated with required template coverage:
   - `LOCALES.md`
+- 2026-02-07 locale parity completion (non-invasive):
+  - Added locale-overridable loading for `explore`/`onboard` skill+command content at generation layer:
+    - `src/core/shared/skill-generation.ts`
+  - Extended required core template inventory for locale validation:
+    - `src/core/templates/template-loader.ts`
+    - `LOCALES.md`
+  - Added template files for `explore`/`onboard` in both locales:
+    - `templates/en/skills/openspec-explore.md`
+    - `templates/en/skills/openspec-onboard.md`
+    - `templates/en/opsx/explore.md`
+    - `templates/en/opsx/onboard.md`
+    - `templates/zh-Hans/skills/openspec-explore.md`
+    - `templates/zh-Hans/skills/openspec-onboard.md`
+    - `templates/zh-Hans/opsx/explore.md`
+    - `templates/zh-Hans/opsx/onboard.md`
+  - Localized `instructions apply` runtime instruction/messages for zh locales:
+    - `src/commands/workflow/instructions.ts`
 - CI/test stability tweaks for the fork (pnpm version alignment and CLI build fixes):
   - `.github/workflows/ci.yml`
   - `test/helpers/run-cli.ts`
   - `vitest.setup.ts`
 
+## Upstream Sync Guardrails (Locale Fork)
+
+This fork intentionally keeps locale support as a thin overlay. During rebase/merge,
+prioritize preserving this behavior with minimal divergence from upstream:
+
+1. Keep locale behavior additive, not replacing upstream defaults
+   - English content remains the default/fallback path
+   - Locale-specific behavior should resolve through template loading and fallback chain
+
+2. Watch these files first for conflicts/regressions
+   - `src/core/shared/skill-generation.ts` (explore/onboard locale override hook)
+   - `src/core/templates/template-loader.ts` (`CORE_TEMPLATE_FILES` inventory)
+   - `src/commands/workflow/instructions.ts` (apply instruction locale output)
+   - `LOCALES.md` (required template list)
+
+3. Preserve template parity across locales for injected content
+   - For every required path under `templates/en/...`, maintain equivalent `templates/zh-Hans/...`
+   - Especially for opsx/skills that are generated into user projects
+
+4. Post-rebase verification checklist (must run)
+   - `openspec locales validate --all --json`
+   - Targeted tests:
+     - `test/core/locale.test.ts`
+     - `test/core/shared/skill-generation.test.ts`
+     - `test/core/artifact-graph/instruction-loader.test.ts`
+     - `test/commands/artifact-workflow.test.ts`
+   - Quick E2E smoke:
+     - set locale to `zh-Hans`
+     - run `openspec init --tools claude --force` in temp dir
+     - verify generated `openspec-explore`/`opsx:onboard` content is zh-Hans
+
+5. If upstream later introduces native locale support for these paths
+   - Prefer adopting upstream mechanism and deleting fork-only glue where possible
+   - Keep behavior equivalent: zh-Hans prompts/skills remain complete and fallback-safe
+
 ## Upstream Sync
 
+- 2026-02-07: Completed locale parity for injected prompts/skills with low-intrusion overlay approach.
+  - Added zh-Hans + en template files for `explore`/`onboard` skills and opsx commands.
+  - Added generator-level locale overrides for `explore`/`onboard` with fallback to upstream default strings.
+  - Localized `instructions apply` runtime instruction text for zh locales.
+  - Verified via `openspec locales validate --all --json` and targeted tests.
 - 2026-02-04: Fetched `upstream/main` (still at `62d4391`) and rebased; no new upstream commits since 2026-02-03.
 - 2026-02-03: Rebased onto `upstream/main` at `62d4391`. Upstream change improves Windows test compatibility:
   - `test/commands/spec.test.ts` now reads spec content via `fs.readFile` (no Unix `cat`).
