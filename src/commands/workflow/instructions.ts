@@ -14,6 +14,7 @@ import {
   resolveSchema,
   type ArtifactInstructions,
 } from '../../core/artifact-graph/index.js';
+import { getConfiguredLocale, getLocaleFallbackChain } from '../../core/locale.js';
 import {
   validateChangeExists,
   validateSchemaExists,
@@ -35,6 +36,33 @@ export interface ApplyInstructionsOptions {
   change?: string;
   schema?: string;
   json?: boolean;
+}
+
+function isChineseLocale(locale: string): boolean {
+  return getLocaleFallbackChain(locale).some((tag) => tag.toLowerCase().startsWith('zh'));
+}
+
+function localizeSchemaApplyInstruction(
+  schemaName: string,
+  instruction: string | null,
+  locale: string
+): string | null {
+  if (!instruction) {
+    return null;
+  }
+
+  if (!isChineseLocale(locale)) {
+    return instruction;
+  }
+
+  if (
+    schemaName === 'spec-driven' &&
+    instruction.includes('work through pending tasks')
+  ) {
+    return '阅读上下文文件，按顺序完成未完成任务，并在完成后及时勾选。\n遇到阻塞或需要澄清时先暂停并确认。';
+  }
+
+  return instruction;
 }
 
 // -----------------------------------------------------------------------------
@@ -321,7 +349,12 @@ export async function generateApplyInstructions(
   // Fallback: if no apply block, require all artifacts
   const requiredArtifactIds = applyConfig?.requires ?? schema.artifacts.map((a) => a.id);
   const tracksFile = applyConfig?.tracks ?? null;
-  const schemaInstruction = applyConfig?.instruction ?? null;
+  const schemaInstruction = localizeSchemaApplyInstruction(
+    context.schemaName,
+    applyConfig?.instruction?.trim() ?? null,
+    context.locale
+  );
+  const useChinese = isChineseLocale(context.locale);
 
   // Check which required artifacts are missing
   const missingArtifacts: string[] = [];
@@ -363,27 +396,55 @@ export async function generateApplyInstructions(
 
   if (missingArtifacts.length > 0) {
     state = 'blocked';
-    instruction = `Cannot apply this change yet. Missing artifacts: ${missingArtifacts.join(', ')}.\nUse the openspec-continue-change skill to create the missing artifacts first.`;
+    if (useChinese) {
+      instruction = `当前还不能进入实现阶段，缺少以下工件：${missingArtifacts.join(', ')}。\n请先使用 openspec-continue-change 生成缺失工件。`;
+    } else {
+      instruction = `Cannot apply this change yet. Missing artifacts: ${missingArtifacts.join(', ')}.\nUse the openspec-continue-change skill to create the missing artifacts first.`;
+    }
   } else if (tracksFile && !tracksFileExists) {
     // Tracking file configured but doesn't exist yet
     const tracksFilename = path.basename(tracksFile);
     state = 'blocked';
-    instruction = `The ${tracksFilename} file is missing and must be created.\nUse openspec-continue-change to generate the tracking file.`;
+    if (useChinese) {
+      instruction = `${tracksFilename} 文件缺失，必须先创建。\n请使用 openspec-continue-change 生成该跟踪文件。`;
+    } else {
+      instruction = `The ${tracksFilename} file is missing and must be created.\nUse openspec-continue-change to generate the tracking file.`;
+    }
   } else if (tracksFile && tracksFileExists && total === 0) {
     // Tracking file exists but contains no tasks
     const tracksFilename = path.basename(tracksFile);
     state = 'blocked';
-    instruction = `The ${tracksFilename} file exists but contains no tasks.\nAdd tasks to ${tracksFilename} or regenerate it with openspec-continue-change.`;
+    if (useChinese) {
+      instruction = `${tracksFilename} 已存在，但没有任何任务。\n请在 ${tracksFilename} 中补充任务，或用 openspec-continue-change 重新生成。`;
+    } else {
+      instruction = `The ${tracksFilename} file exists but contains no tasks.\nAdd tasks to ${tracksFilename} or regenerate it with openspec-continue-change.`;
+    }
   } else if (tracksFile && remaining === 0 && total > 0) {
     state = 'all_done';
-    instruction = 'All tasks are complete! This change is ready to be archived.\nConsider running tests and reviewing the changes before archiving.';
+    if (useChinese) {
+      instruction = '所有任务均已完成！该变更已可归档。\n归档前建议先运行测试并完成代码审阅。';
+    } else {
+      instruction = 'All tasks are complete! This change is ready to be archived.\nConsider running tests and reviewing the changes before archiving.';
+    }
   } else if (!tracksFile) {
     // No tracking file configured in schema - ready to apply
     state = 'ready';
-    instruction = schemaInstruction?.trim() ?? 'All required artifacts complete. Proceed with implementation.';
+    if (schemaInstruction) {
+      instruction = schemaInstruction;
+    } else if (useChinese) {
+      instruction = '所有必需工件已齐备，可以开始实现。';
+    } else {
+      instruction = 'All required artifacts complete. Proceed with implementation.';
+    }
   } else {
     state = 'ready';
-    instruction = schemaInstruction?.trim() ?? 'Read context files, work through pending tasks, mark complete as you go.\nPause if you hit blockers or need clarification.';
+    if (schemaInstruction) {
+      instruction = schemaInstruction;
+    } else if (useChinese) {
+      instruction = '阅读上下文文件，逐项处理未完成任务，并在完成后打勾。\n如遇阻塞或需要澄清，请先暂停并确认。';
+    } else {
+      instruction = 'Read context files, work through pending tasks, mark complete as you go.\nPause if you hit blockers or need clarification.';
+    }
   }
 
   return {
@@ -430,24 +491,33 @@ export async function applyInstructionsCommand(options: ApplyInstructionsOptions
 
 export function printApplyInstructionsText(instructions: ApplyInstructions): void {
   const { changeName, schemaName, contextFiles, progress, tasks, state, missingArtifacts, instruction } = instructions;
+  const useChinese = isChineseLocale(getConfiguredLocale());
 
-  console.log(`## Apply: ${changeName}`);
-  console.log(`Schema: ${schemaName}`);
+  console.log(useChinese ? `## 应用阶段：${changeName}` : `## Apply: ${changeName}`);
+  console.log(useChinese ? `工作流：${schemaName}` : `Schema: ${schemaName}`);
   console.log();
 
   // Warning for blocked state
   if (state === 'blocked' && missingArtifacts) {
-    console.log('### ⚠️ Blocked');
+    console.log(useChinese ? '### ⚠️ 已阻塞' : '### ⚠️ Blocked');
     console.log();
-    console.log(`Missing artifacts: ${missingArtifacts.join(', ')}`);
-    console.log('Use the openspec-continue-change skill to create these first.');
+    console.log(
+      useChinese
+        ? `缺失工件：${missingArtifacts.join(', ')}`
+        : `Missing artifacts: ${missingArtifacts.join(', ')}`
+    );
+    console.log(
+      useChinese
+        ? '请先使用 openspec-continue-change 生成这些工件。'
+        : 'Use the openspec-continue-change skill to create these first.'
+    );
     console.log();
   }
 
   // Context files (dynamically from schema)
   const contextFileEntries = Object.entries(contextFiles);
   if (contextFileEntries.length > 0) {
-    console.log('### Context Files');
+    console.log(useChinese ? '### 上下文文件' : '### Context Files');
     for (const [artifactId, filePath] of contextFileEntries) {
       console.log(`- ${artifactId}: ${filePath}`);
     }
@@ -456,18 +526,26 @@ export function printApplyInstructionsText(instructions: ApplyInstructions): voi
 
   // Progress (only show if we have tracking)
   if (progress.total > 0 || tasks.length > 0) {
-    console.log('### Progress');
+    console.log(useChinese ? '### 进度' : '### Progress');
     if (state === 'all_done') {
-      console.log(`${progress.complete}/${progress.total} complete ✓`);
+      console.log(
+        useChinese
+          ? `${progress.complete}/${progress.total} 已完成 ✓`
+          : `${progress.complete}/${progress.total} complete ✓`
+      );
     } else {
-      console.log(`${progress.complete}/${progress.total} complete`);
+      console.log(
+        useChinese
+          ? `${progress.complete}/${progress.total} 已完成`
+          : `${progress.complete}/${progress.total} complete`
+      );
     }
     console.log();
   }
 
   // Tasks
   if (tasks.length > 0) {
-    console.log('### Tasks');
+    console.log(useChinese ? '### 任务' : '### Tasks');
     for (const task of tasks) {
       const checkbox = task.done ? '[x]' : '[ ]';
       console.log(`- ${checkbox} ${task.description}`);
@@ -476,6 +554,6 @@ export function printApplyInstructionsText(instructions: ApplyInstructions): voi
   }
 
   // Instruction
-  console.log('### Instruction');
+  console.log(useChinese ? '### 指令' : '### Instruction');
   console.log(instruction);
 }

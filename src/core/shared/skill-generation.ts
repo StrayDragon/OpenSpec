@@ -29,6 +29,7 @@ import {
   getOpsxProposeCommandTemplate,
   type SkillTemplate,
 } from '../templates/skill-templates.js';
+import { loadCoreTemplate } from '../templates/template-loader.js';
 import type { CommandContent } from '../command-generation/index.js';
 
 /**
@@ -48,6 +49,31 @@ export interface CommandTemplateEntry {
   id: string;
 }
 
+function loadLocalizedTemplateOrFallback(relativePath: string, fallbackContent: string): string {
+  try {
+    return loadCoreTemplate(relativePath);
+  } catch {
+    return fallbackContent;
+  }
+}
+
+function withLocalizedSkillInstructions(template: SkillTemplate, relativePath: string): SkillTemplate {
+  return {
+    ...template,
+    instructions: loadLocalizedTemplateOrFallback(relativePath, template.instructions),
+  };
+}
+
+function withLocalizedCommandContent(
+  template: ReturnType<typeof getOpsxExploreCommandTemplate>,
+  relativePath: string
+): ReturnType<typeof getOpsxExploreCommandTemplate> {
+  return {
+    ...template,
+    content: loadLocalizedTemplateOrFallback(relativePath, template.content),
+  };
+}
+
 /**
  * Gets skill templates with their directory names, optionally filtered by workflow IDs.
  *
@@ -55,23 +81,73 @@ export interface CommandTemplateEntry {
  */
 export function getSkillTemplates(workflowFilter?: readonly string[]): SkillTemplateEntry[] {
   const all: SkillTemplateEntry[] = [
-    { template: getExploreSkillTemplate(), dirName: 'openspec-explore', workflowId: 'explore' },
-    { template: getNewChangeSkillTemplate(), dirName: 'openspec-new-change', workflowId: 'new' },
-    { template: getContinueChangeSkillTemplate(), dirName: 'openspec-continue-change', workflowId: 'continue' },
-    { template: getApplyChangeSkillTemplate(), dirName: 'openspec-apply-change', workflowId: 'apply' },
-    { template: getFfChangeSkillTemplate(), dirName: 'openspec-ff-change', workflowId: 'ff' },
-    { template: getSyncSpecsSkillTemplate(), dirName: 'openspec-sync-specs', workflowId: 'sync' },
-    { template: getArchiveChangeSkillTemplate(), dirName: 'openspec-archive-change', workflowId: 'archive' },
-    { template: getBulkArchiveChangeSkillTemplate(), dirName: 'openspec-bulk-archive-change', workflowId: 'bulk-archive' },
-    { template: getVerifyChangeSkillTemplate(), dirName: 'openspec-verify-change', workflowId: 'verify' },
-    { template: getOnboardSkillTemplate(), dirName: 'openspec-onboard', workflowId: 'onboard' },
-    { template: getOpsxProposeSkillTemplate(), dirName: 'openspec-propose', workflowId: 'propose' },
+    {
+      template: withLocalizedSkillInstructions(getExploreSkillTemplate(), 'skills/openspec-explore.md'),
+      dirName: 'openspec-explore',
+      workflowId: 'explore',
+    },
+    {
+      template: withLocalizedSkillInstructions(getNewChangeSkillTemplate(), 'skills/openspec-new-change.md'),
+      dirName: 'openspec-new-change',
+      workflowId: 'new',
+    },
+    {
+      template: withLocalizedSkillInstructions(
+        getContinueChangeSkillTemplate(),
+        'skills/openspec-continue-change.md'
+      ),
+      dirName: 'openspec-continue-change',
+      workflowId: 'continue',
+    },
+    {
+      template: withLocalizedSkillInstructions(getApplyChangeSkillTemplate(), 'skills/openspec-apply-change.md'),
+      dirName: 'openspec-apply-change',
+      workflowId: 'apply',
+    },
+    {
+      template: withLocalizedSkillInstructions(getFfChangeSkillTemplate(), 'skills/openspec-ff-change.md'),
+      dirName: 'openspec-ff-change',
+      workflowId: 'ff',
+    },
+    {
+      template: withLocalizedSkillInstructions(getSyncSpecsSkillTemplate(), 'skills/openspec-sync-specs.md'),
+      dirName: 'openspec-sync-specs',
+      workflowId: 'sync',
+    },
+    {
+      template: withLocalizedSkillInstructions(getArchiveChangeSkillTemplate(), 'skills/openspec-archive-change.md'),
+      dirName: 'openspec-archive-change',
+      workflowId: 'archive',
+    },
+    {
+      template: withLocalizedSkillInstructions(
+        getBulkArchiveChangeSkillTemplate(),
+        'skills/openspec-bulk-archive-change.md'
+      ),
+      dirName: 'openspec-bulk-archive-change',
+      workflowId: 'bulk-archive',
+    },
+    {
+      template: withLocalizedSkillInstructions(getVerifyChangeSkillTemplate(), 'skills/openspec-verify-change.md'),
+      dirName: 'openspec-verify-change',
+      workflowId: 'verify',
+    },
+    {
+      template: withLocalizedSkillInstructions(getOnboardSkillTemplate(), 'skills/openspec-onboard.md'),
+      dirName: 'openspec-onboard',
+      workflowId: 'onboard',
+    },
+    {
+      template: withLocalizedSkillInstructions(getOpsxProposeSkillTemplate(), 'skills/openspec-propose.md'),
+      dirName: 'openspec-propose',
+      workflowId: 'propose',
+    },
   ];
 
   if (!workflowFilter) return all;
 
   const filterSet = new Set(workflowFilter);
-  return all.filter(entry => filterSet.has(entry.workflowId));
+  return all.filter((entry) => filterSet.has(entry.workflowId));
 }
 
 /**
@@ -81,23 +157,26 @@ export function getSkillTemplates(workflowFilter?: readonly string[]): SkillTemp
  */
 export function getCommandTemplates(workflowFilter?: readonly string[]): CommandTemplateEntry[] {
   const all: CommandTemplateEntry[] = [
-    { template: getOpsxExploreCommandTemplate(), id: 'explore' },
-    { template: getOpsxNewCommandTemplate(), id: 'new' },
-    { template: getOpsxContinueCommandTemplate(), id: 'continue' },
-    { template: getOpsxApplyCommandTemplate(), id: 'apply' },
-    { template: getOpsxFfCommandTemplate(), id: 'ff' },
-    { template: getOpsxSyncCommandTemplate(), id: 'sync' },
-    { template: getOpsxArchiveCommandTemplate(), id: 'archive' },
-    { template: getOpsxBulkArchiveCommandTemplate(), id: 'bulk-archive' },
-    { template: getOpsxVerifyCommandTemplate(), id: 'verify' },
-    { template: getOpsxOnboardCommandTemplate(), id: 'onboard' },
-    { template: getOpsxProposeCommandTemplate(), id: 'propose' },
+    { template: withLocalizedCommandContent(getOpsxExploreCommandTemplate(), 'opsx/explore.md'), id: 'explore' },
+    { template: withLocalizedCommandContent(getOpsxNewCommandTemplate(), 'opsx/new.md'), id: 'new' },
+    { template: withLocalizedCommandContent(getOpsxContinueCommandTemplate(), 'opsx/continue.md'), id: 'continue' },
+    { template: withLocalizedCommandContent(getOpsxApplyCommandTemplate(), 'opsx/apply.md'), id: 'apply' },
+    { template: withLocalizedCommandContent(getOpsxFfCommandTemplate(), 'opsx/ff.md'), id: 'ff' },
+    { template: withLocalizedCommandContent(getOpsxSyncCommandTemplate(), 'opsx/sync.md'), id: 'sync' },
+    { template: withLocalizedCommandContent(getOpsxArchiveCommandTemplate(), 'opsx/archive.md'), id: 'archive' },
+    {
+      template: withLocalizedCommandContent(getOpsxBulkArchiveCommandTemplate(), 'opsx/bulk-archive.md'),
+      id: 'bulk-archive',
+    },
+    { template: withLocalizedCommandContent(getOpsxVerifyCommandTemplate(), 'opsx/verify.md'), id: 'verify' },
+    { template: withLocalizedCommandContent(getOpsxOnboardCommandTemplate(), 'opsx/onboard.md'), id: 'onboard' },
+    { template: withLocalizedCommandContent(getOpsxProposeCommandTemplate(), 'opsx/propose.md'), id: 'propose' },
   ];
 
   if (!workflowFilter) return all;
 
   const filterSet = new Set(workflowFilter);
-  return all.filter(entry => filterSet.has(entry.id));
+  return all.filter((entry) => filterSet.has(entry.id));
 }
 
 /**
