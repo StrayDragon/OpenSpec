@@ -31,6 +31,29 @@ describe('locale utilities', () => {
     ]);
   });
 
+  it('falls back from generic zh to zh-Hans before en', () => {
+    expect(getLocaleFallbackChain('zh')).toEqual([
+      'zh',
+      'zh-Hans',
+      DEFAULT_LOCALE,
+    ]);
+  });
+
+  it('falls back from zh region tags to inferred script locale', () => {
+    expect(getLocaleFallbackChain('zh-CN')).toEqual([
+      'zh-CN',
+      'zh-Hans',
+      'zh',
+      DEFAULT_LOCALE,
+    ]);
+    expect(getLocaleFallbackChain('zh-TW')).toEqual([
+      'zh-TW',
+      'zh-Hant',
+      'zh',
+      DEFAULT_LOCALE,
+    ]);
+  });
+
   it('falls back to default locale for invalid tags', () => {
     expect(getLocaleFallbackChain('not_a_locale')).toEqual([DEFAULT_LOCALE]);
   });
