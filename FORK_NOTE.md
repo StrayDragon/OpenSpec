@@ -25,7 +25,7 @@ Read this before making changes or running automation in this fork.
   - `templates/zh-Hans/opsx/verify.md`
   - `templates/zh-Hans/skills/openspec-verify-change.md`
   - `templates/zh-Hans/skills/feedback.md`
-  - `src/core/templates/skill-templates.ts`
+  - `src/core/shared/skill-generation.ts`
 - Telemetry disabled by default in CLI:
   - `src/telemetry/index.ts`
 - Locale documentation updated with required template coverage:
@@ -62,7 +62,7 @@ prioritize preserving this behavior with minimal divergence from upstream:
    - Locale-specific behavior should resolve through template loading and fallback chain
 
 2. Watch these files first for conflicts/regressions
-   - `src/core/shared/skill-generation.ts` (explore/onboard locale override hook)
+   - `src/core/shared/skill-generation.ts` (skill/command template locale override hook)
    - `src/core/templates/template-loader.ts` (`CORE_TEMPLATE_FILES` inventory)
    - `src/commands/workflow/instructions.ts` (apply instruction locale output)
    - `LOCALES.md` (required template list)
@@ -81,7 +81,7 @@ prioritize preserving this behavior with minimal divergence from upstream:
    - Quick E2E smoke:
      - set locale to `zh-Hans`
      - run `openspec init --tools claude --force` in temp dir
-     - verify generated `openspec-explore`/`opsx:onboard` content is zh-Hans
+     - verify generated skills + opsx command content are zh-Hans
 
 5. If upstream later introduces native locale support for these paths
    - Prefer adopting upstream mechanism and deleting fork-only glue where possible
@@ -89,6 +89,17 @@ prioritize preserving this behavior with minimal divergence from upstream:
 
 ## Upstream Sync
 
+- 2026-02-17: Rebased onto `upstream/main` at `4108563`.
+  - Upstream: split skill templates into workflow modules and added parity tests:
+    - `src/core/templates/workflows/*.ts`
+    - `test/core/templates/skill-templates-parity.test.ts`
+  - Upstream: added Kiro CLI support:
+    - `src/core/command-generation/adapters/kiro.ts`
+    - `docs/supported-tools.md`
+  - Upstream: bulk-archived completed changes and added source spec normalization test:
+    - `openspec/changes/archive/*`
+    - `test/specs/source-specs-normalization.test.ts`
+  - Fork: kept upstream `src/core/templates/skill-templates.ts` facade during rebase and ensured locale templates still load via `src/core/shared/skill-generation.ts`.
 - 2026-02-07: Completed locale parity for injected prompts/skills with low-intrusion overlay approach.
   - Added zh-Hans + en template files for `explore`/`onboard` skills and opsx commands.
   - Added generator-level locale overrides for `explore`/`onboard` with fallback to upstream default strings.
