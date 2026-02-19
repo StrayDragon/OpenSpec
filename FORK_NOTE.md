@@ -89,6 +89,9 @@ prioritize preserving this behavior with minimal divergence from upstream:
 
 ## Upstream Sync
 
+- 2026-02-19: Rebased onto `upstream/main` at `5fd8e9d`.
+  - Upstream: added change proposal + specs for “simplify skill installation” (profiles, delivery config, smart-defaults init, tool auto-detection, propose workflow), plus new explorations and docs updates.
+  - Fork: locale overlay unchanged; rebase applied cleanly (no conflicts).
 - 2026-02-17: Rebased onto `upstream/main` at `4108563`.
   - Upstream: split skill templates into workflow modules and added parity tests:
     - `src/core/templates/workflows/*.ts`
