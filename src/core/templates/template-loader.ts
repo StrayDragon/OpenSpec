@@ -22,6 +22,7 @@ export const CORE_TEMPLATE_FILES = [
   'skills/openspec-verify-change.md',
   'skills/openspec-explore.md',
   'skills/openspec-onboard.md',
+  'skills/openspec-propose.md',
   'skills/feedback.md',
   'opsx/explore.md',
   'opsx/new.md',
@@ -33,6 +34,7 @@ export const CORE_TEMPLATE_FILES = [
   'opsx/bulk-archive.md',
   'opsx/verify.md',
   'opsx/onboard.md',
+  'opsx/propose.md',
 ] as const;
 
 export type CoreTemplatePath = typeof CORE_TEMPLATE_FILES[number];
