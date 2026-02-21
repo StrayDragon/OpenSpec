@@ -89,6 +89,10 @@ prioritize preserving this behavior with minimal divergence from upstream:
 
 ## Upstream Sync
 
+- 2026-02-21: Rebased onto `upstream/main` at `4ba2690`.
+  - Upstream: “simplify skill installation” landed (profiles + delivery + workflow selection, plus init/update changes), added `/opsx:propose` workflow templates, and introduced QA smoke harness docs/tests.
+  - Fork: kept locale overlay additive by merging `locale` into the new global config shape, and updated `src/core/shared/skill-generation.ts` to preserve locale file-template overrides while adopting upstream workflow filtering + propose workflow; added propose templates for `en` + `zh-Hans` and extended locale validation inventory.
+  - Conflicts: `src/core/config-schema.ts`, `src/core/global-config.ts`, `test/commands/config.test.ts`, `test/core/global-config.test.ts`, `src/core/shared/skill-generation.ts`.
 - 2026-02-19: Rebased onto `upstream/main` at `5fd8e9d`.
   - Upstream: added change proposal + specs for “simplify skill installation” (profiles, delivery config, smart-defaults init, tool auto-detection, propose workflow), plus new explorations and docs updates.
   - Fork: locale overlay unchanged; rebase applied cleanly (no conflicts).
