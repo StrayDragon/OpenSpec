@@ -89,6 +89,15 @@ prioritize preserving this behavior with minimal divergence from upstream:
 
 ## Upstream Sync
 
+- 2026-02-24: Rebased onto `upstream/main` at `6a3a126` (tag: `v1.2.0`).
+  - Upstream: release/version bump (CHANGELOG + package version); changeset commit for profiles/Pi/Kiro/bug-fixes was consumed by the release.
+  - Fork: locale overlay replayed cleanly with no additional changes required.
+  - Conflicts: none.
+  - Verification: `pnpm lint`, `pnpm test`, `openspec locales validate --all --json`, and zh-Hans `openspec init --tools claude --force` smoke.
+- 2026-02-23: Rebased onto `upstream/main` at `a0608d0`.
+  - Upstream: added new proposals/specs for stacking + install scope + command surfaces; simplified profile sync and expanded commands-only coverage (config/init/migration/update refactors + new tests); added Pi (pi.dev) coding agent adapter; sync/update now prunes deselected workflows.
+  - Fork: locale overlay applied cleanly with no additional changes required.
+  - Conflicts: none.
 - 2026-02-21: Rebased onto `upstream/main` at `4ba2690`.
   - Upstream: “simplify skill installation” landed (profiles + delivery + workflow selection, plus init/update changes), added `/opsx:propose` workflow templates, and introduced QA smoke harness docs/tests.
   - Fork: kept locale overlay additive by merging `locale` into the new global config shape, and updated `src/core/shared/skill-generation.ts` to preserve locale file-template overrides while adopting upstream workflow filtering + propose workflow; added propose templates for `en` + `zh-Hans` and extended locale validation inventory.
