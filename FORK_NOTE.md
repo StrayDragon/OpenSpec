@@ -89,6 +89,11 @@ prioritize preserving this behavior with minimal divergence from upstream:
 
 ## Upstream Sync
 
+- 2026-02-25: Rebased onto `upstream/main` at `d7d1860`.
+  - Upstream: docs realigned defaults, profile workflows, and tool references; `.gitignore` now ignores `.codex/`.
+  - Fork: locale overlay replayed cleanly with no additional changes required.
+  - Conflicts: `.gitignore` (kept both `.codex/` and `.nvimlog` ignores).
+  - Verification: `pnpm lint`, `pnpm test`, `openspec locales validate --all --json`, and zh-Hans `openspec init --tools claude --force` smoke.
 - 2026-02-24: Rebased onto `upstream/main` at `6a3a126` (tag: `v1.2.0`).
   - Upstream: release/version bump (CHANGELOG + package version); changeset commit for profiles/Pi/Kiro/bug-fixes was consumed by the release.
   - Fork: locale overlay replayed cleanly with no additional changes required.
