@@ -1,3 +1,8 @@
+# MUST OBEY
+
+我们这个fork主要的功能区别就是增加了locale(中文)模式 会同步翻译相关上游的英文prompt,skills等文本到中文并让用户可以配置 locale偏好后 init update 使用对应
+  locale的注入信息, 目前已经经过了几次和上游的同步 你能帮我复核下是否有遗漏?
+
 # Fork Notes
 
 > 先 rebase，再只看 locale 相关四个关键文件冲突，最后跑 `openspec locales validate --all --json` + 四个定向测试。
@@ -78,6 +83,7 @@ prioritize preserving this behavior with minimal divergence from upstream:
      - `test/core/shared/skill-generation.test.ts`
      - `test/core/artifact-graph/instruction-loader.test.ts`
      - `test/commands/artifact-workflow.test.ts`
+     - `test/core/templates/locale-template-parity.test.ts`
    - Quick E2E smoke:
      - set locale to `zh-Hans`
      - run `openspec init --tools claude --force` in temp dir
