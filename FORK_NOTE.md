@@ -95,6 +95,26 @@ prioritize preserving this behavior with minimal divergence from upstream:
 
 ## Upstream Sync
 
+- 2026-02-28: Rebased onto `upstream/main` at `afdca0d`.
+  - Upstream: 3 commits since `d199dfa`:
+    - `fix(status)`: exit gracefully when no changes exist
+    - `fix(opencode)`: use `commands/` directory to match OpenCode convention
+    - Docs: corrected `openspec status` examples in `docs/cli.md`
+  - Fork: locale overlay replayed cleanly with no additional changes required.
+  - Conflicts: none.
+  - Verification:
+    - `pnpm lint`
+    - `pnpm test`
+    - `openspec locales validate --all --json`
+    - zh-Hans smoke (isolated HOME/XDG):
+      - `openspec config set locale zh-Hans`
+      - `openspec init --tools claude --force`
+      - verified generated `.claude/commands/opsx/propose.md` and `.claude/skills/openspec-propose/SKILL.md` are zh-Hans
+- 2026-02-26: Rebased onto `upstream/main` at `d199dfa`.
+  - Upstream: fixed nested code-block formatting in `docs/concepts.md`.
+  - Fork: locale overlay replayed cleanly with no additional changes required.
+  - Conflicts: none.
+  - Verification: `pnpm lint`, `pnpm test`, `openspec locales validate --all --json`, and zh-Hans `openspec init --tools claude --force` smoke.
 - 2026-02-25: Rebased onto `upstream/main` at `d7d1860`.
   - Upstream: docs realigned defaults, profile workflows, and tool references; `.gitignore` now ignores `.codex/`.
   - Fork: locale overlay replayed cleanly with no additional changes required.
