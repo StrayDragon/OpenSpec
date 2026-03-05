@@ -52,7 +52,7 @@
    - 若需要同步:"现在同步(推荐)"、"不同步直接归档"
    - 若已同步:"立即归档"、"仍要同步"、"取消"
 
-   如果用户选择同步,执行 `/opsx:sync` 逻辑.无论选择如何,继续归档.
+   如果用户选择同步,使用 Task 工具(subagent_type: "general-purpose", prompt: "Use Skill tool to invoke openspec-sync-specs for change '<name>'. Delta spec analysis: <include the analyzed delta spec summary>").无论选择如何,继续归档.
 
 5. **执行归档**
 
@@ -146,5 +146,5 @@
 - 不要因警告阻止归档——仅提示并确认
 - 移动时保留 .openspec.yaml(目录整体移动)
 - 清晰展示发生了什么
-- 如果请求同步,使用 /opsx:sync 方式(agent 驱动)
+- 如果请求同步,使用 openspec-sync-specs 方式(agent 驱动)
 - 若存在 delta 规范,始终进行同步评估并在提示前展示合并摘要

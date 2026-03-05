@@ -13,14 +13,22 @@
 
    始终说明:"使用变更:<name>",并告知如何覆盖(例如 `/opsx:apply <other>`).
 
-2. **获取应用说明**
+2. **检查状态以了解 schema**
+   ```bash
+   openspec status --change "<name>" --json
+   ```
+   解析 JSON 以了解:
+   - `schemaName`:正在使用的工作流(例如,"spec-driven")
+   - 哪个工件包含任务(通常 spec-driven 为 "tasks";其他 schema 以 status 输出为准)
+
+3. **获取应用说明**
 
    ```bash
    openspec instructions apply --change "<name>" --json
    ```
 
    这返回:
-   - 上下文文件路径(proposal、specs、design、tasks)
+   - 上下文文件路径(随 schema 而变,可能是 proposal/specs/design/tasks,也可能是 spec/tests/implementation/docs 等)
    - 进度(总计、完成、剩余)
    - 带状态的任务列表
    - 基于当前状态的动态说明
@@ -30,22 +38,22 @@
    - 如果 `state: "all_done"`:祝贺,建议归档
    - 否则:继续实施
 
-3. **阅读上下文文件**
+4. **阅读上下文文件**
 
-   阅读 `contextFiles` 中列出的文件:
-   - `proposal` - 原因和内容
-   - `specs` - 需求和场景(使用 glob 模式查找所有)
-   - `design` - 技术方法(如果存在)
-   - `tasks` - 实施检查清单
+   阅读 apply instructions 输出中的 `contextFiles` 列出的文件.
+   文件取决于正在使用的 schema:
+   - **spec-driven**: proposal、specs、design、tasks
+   - 其他 schema:以 CLI 输出为准
 
-4. **显示当前进度**
+5. **显示当前进度**
 
    显示:
+   - 正在使用的 schema
    - 进度:"N/M 任务完成"
    - 剩余任务概述
    - 来自 CLI 的动态说明
 
-5. **实施任务(循环直到完成或被阻止)**
+6. **实施任务(循环直到完成或被阻止)**
 
    对于每个待处理任务:
    - 显示正在处理的任务
@@ -60,18 +68,18 @@
    - 遇到错误或阻止程序 → 报告并等待指导
    - 用户中断
 
-6. **完成或暂停时,显示状态**
+7. **完成或暂停时,显示状态**
 
    显示:
    - 此会话完成的任务
    - 整体进度:"N/M 任务完成"
-   - 如果全部完成:建议归档
+   - 如果全部完成:建议归档(例如 `/opsx:archive`)
    - 如果暂停:解释原因并等待指导
 
 **实施期间输出**
 
 ```
-## 实施:<change-name>
+## 实施:<change-name>(schema: <schema-name>)
 
 正在处理任务 3/7:<task description>
 [...implementation happening...]
@@ -88,6 +96,7 @@
 ## 实施完成
 
 **变更:** <change-name>
+**Schema:** <schema-name>
 **进度:** 7/7 任务完成 ✓
 
 ### 此会话完成
@@ -95,7 +104,7 @@
 - [x] 任务 2
 ...
 
-所有任务完成!准备好归档此变更.
+所有任务完成!你可以用 `/opsx:archive` 归档该变更.
 ```
 
 **暂停时输出(遇到问题)**
@@ -104,6 +113,7 @@
 ## 实施暂停
 
 **变更:** <change-name>
+**Schema:** <schema-name>
 **进度:** 4/7 任务完成
 
 ### 遇到问题
@@ -125,6 +135,7 @@
 - 保持代码更改最小化并局限于每个任务
 - 在完成每个任务后立即更新任务复选框
 - 在错误、阻止程序或要求不清楚时暂停 - 不要猜测
+ - 使用 CLI 输出中的 contextFiles,不要假设固定文件名
 
 **流畅工作流集成**
 

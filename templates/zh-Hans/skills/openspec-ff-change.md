@@ -38,14 +38,17 @@
         ```bash
         openspec instructions <artifact-id> --change "<name>" --json
         ```
-      - 说明 JSON 包含:
-        - `template`:要使用的模板内容
-        - `instruction`:该工件类型的 schema 指导
-        - `outputPath`:写入位置
-        - `dependencies`:需要读取的已完成工件
-      - 读取已完成依赖文件获取上下文
-      - 按 schema 的 `instruction` 创建工件文件
-      - 简短展示进度:"✓ 已创建 <artifact-id>"
+	      - 说明 JSON 包含:
+	        - `context`:项目背景(对你是约束——不要输出到文件中)
+	        - `rules`:工件规则(对你是约束——不要输出到文件中)
+	        - `template`:要使用的模板内容
+	        - `instruction`:该工件类型的 schema 指导
+	        - `outputPath`:写入位置
+	        - `dependencies`:需要读取的已完成工件
+	      - 读取已完成依赖文件获取上下文
+	      - 使用 `template` 作为结构创建工件文件(填充其各部分)
+	      - 写作时将 `context` 和 `rules` 作为约束,但不要把它们复制进文件
+	      - 简短展示进度:"✓ 已创建 <artifact-id>"
 
    b. **持续直到 `applyRequires` 全部完成**
       - 每创建一个工件后,重新运行 `openspec status --change "<name>" --json`
@@ -75,6 +78,9 @@
 - schema 定义了每个工件应包含什么——遵循它
 - 在创建新工件之前先读依赖工件
 - 使用 `template` 作为起点,并根据上下文填充
+- **重要**:`context` 和 `rules` 是给你的约束,不是文件内容
+  - 不要把 `<context>`, `<rules>`, `<project_context>` 块复制到工件中
+  - 它们用于指导你写作,但不应出现在输出里
 
 **护栏**
 - 创建实施所需的全部工件(由 schema 的 `apply.requires` 定义)
